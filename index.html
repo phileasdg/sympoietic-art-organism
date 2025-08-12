@@ -359,7 +359,10 @@
       .linkColor(link => highlightLinks.has(link) ? '#FF8C00' : '#00EEAA')
       .linkCurvature(link => link.curvature || 0)
       .linkCurveRotation(link => link.rotation || 0)
-      .nodeLabel(node => `Node ${node.id}`)
+      .nodeLabel(node => {
+        // Extract file name without the path and extension
+        const fileName = node.img.split('/').pop().split('.')[0];
+        return fileName;})
       .onNodeHover(node => {
         if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return;
 
