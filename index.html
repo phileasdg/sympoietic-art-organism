@@ -12,7 +12,7 @@
     body {
       margin: 0;
       font-family: 'DM Sans', system-ui, sans-serif;
-      background: #ffffff;
+      background: #101011;
       color: #a3d9ca;
       overflow: hidden;
     }
@@ -355,8 +355,8 @@
       .linkDirectionalParticleWidth(4)
       .linkDirectionalArrowLength(link => highlightLinks.has(link) ? hoverArrowLength : baseArrowLength)
       .linkDirectionalArrowRelPos(0.9)
-      .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#FF4500' : '#708090')
-      .linkColor(link => highlightLinks.has(link) ? '#FF8C00' : '#A0522D')
+      .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#FF4500' : '#00EEAA')
+      .linkColor(link => highlightLinks.has(link) ? '#FF8C00' : '#00EEAA')
       .linkCurvature(link => link.curvature || 0)
       .linkCurveRotation(link => link.rotation || 0)
       .nodeLabel(node => `Node ${node.id}`)
