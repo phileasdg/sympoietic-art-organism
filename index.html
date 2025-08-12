@@ -49,7 +49,7 @@
 
     #menu.closed #title-container,
     #menu.closed #subtitle,
-    #menu.closed ul {
+    #menu.closed #nav-box {
       display: none;
     }
 
@@ -58,12 +58,25 @@
       font-weight: 600;
       margin: 0;
       color: #a3d9ca;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    #title:hover {
+      color: #00eeaa;
     }
 
     #subtitle {
       font-size: 1rem;
       opacity: 0.8;
       color: #a3d9ca;
+    }
+
+    #nav-box {
+      background: rgba(0, 238, 170, 0.1);
+      border: 1px solid rgba(0, 238, 170, 0.2);
+      border-radius: 8px;
+      padding: 12px;
     }
 
     nav ul {
@@ -239,15 +252,17 @@
 <body>
   <nav id="menu">
     <div id="title-container">
-      <h1 id="title">Sympoietic Art Organism</h1>
+      <a href="https://phileasdg.github.io/sympoietic/" id="title">Sympoietic Art Organism</a>
       <p id="subtitle">This project aims to grow a sympoietic art organism. To cultivate an art ecosystem by drawing from and enriching shared artistic commons. To showcase art that mixes media and visions, that brings out the analog from digital, and digitizes the analog.</p>
     </div>
     <div id="title-vertical">Sympoietic Art Organism</div>
-    <ul>
-      <li><a href="https://phileasdg.github.io/sympoietic/manifesto.html">Manifesto</a></li>
-      <li><a href="https://phileasdg.github.io/sympoietic/digital-gallery.html">Galleries</a></li>
-      <li><a href="https://phileasdg.github.io/sympoietic/artists.html">About</a></li>
-    </ul>
+    <div id="nav-box">
+      <ul>
+        <li><a href="https://phileasdg.github.io/sympoietic/manifesto.html">Manifesto</a></li>
+        <li><a href="https://phileasdg.github.io/sympoietic/digital-gallery.html">Galleries</a></li>
+        <li><a href="https://phileasdg.github.io/sympoietic/artists.html">About</a></li>
+      </ul>
+    </div>
     <div id="buttons-container">
       <button id="toggle-btn">×</button>
       <button id="copy-btn">📋 Copy network adjacency matrix</button>
