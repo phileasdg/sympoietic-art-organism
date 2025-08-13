@@ -436,11 +436,6 @@
 </head>
 
 <body>
-  <div id="loading">
-    <div class="loading-spinner"></div>
-    Loading network...
-  </div>
-
   <nav id="menu">
     <div id="title-container">
       <a href="https://phileasdg.github.io/sympoietic/" id="title">Sympoietic Art Organism</a>
@@ -717,55 +712,46 @@
         .graphData(gData)
         .backgroundColor('rgba(0,0,0,0)')
         .nodeThreeObject(node => {
-          // Start with colored sphere
-          const geometry = new THREE.SphereGeometry(11, 16, 16);
-          const material = new THREE.MeshBasicMaterial({ 
-            color: getNodeColor(node),
-            transparent: true,
-            opacity: 0.9
-          });
-          const sphere = new THREE.Mesh(geometry, material);
-          nodeSprites.set(node.id, sphere);
-          
-          // Try to load image asynchronously after sphere is in place
-          const textureLoader = new THREE.TextureLoader();
-          textureLoader.load(
+          // Create sprite with image (like your original working code)
+          const texture = new THREE.TextureLoader().load(
             `./art-thumbnails/${node.img}`,
             // Success callback
             (texture) => {
               texture.colorSpace = THREE.SRGBColorSpace;
-              
-              // Create sprite
-              const spriteMaterial = new THREE.SpriteMaterial({ 
-                map: texture,
-                transparent: true,
-                opacity: 0.9
-              });
-              const sprite = new THREE.Sprite(spriteMaterial);
-              sprite.scale.set(22, 22, 1);
-              
-              // Replace sphere with sprite in its parent
-              if (sphere.parent) {
-                const parent = sphere.parent;
-                // Copy position from sphere
-                sprite.position.copy(sphere.position);
-                sprite.rotation.copy(sphere.rotation);
-                sprite.scale.copy(sphere.scale);
-                sprite.scale.set(22, 22, 1); // Reset to correct sprite scale
-                
-                parent.remove(sphere);
-                parent.add(sprite);
-                nodeSprites.set(node.id, sprite);
-              }
+              // Image loaded successfully, sprite will display it
             },
+            // Progress callback
             undefined,
-            // Error callback - keep sphere
+            // Error callback - replace sprite material with colored material
             (error) => {
-              console.log(`Using fallback sphere for node ${node.id}`);
+              console.log(`Image failed for node ${node.id}, using colored fallback`);
+              // Replace the sprite's material with a colored one
+              const sprite = nodeSprites.get(node.id);
+              if (sprite) {
+                // Create a simple colored texture
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = getNodeColor(node);
+                ctx.fillRect(0, 0, 64, 64);
+                
+                const colorTexture = new THREE.CanvasTexture(canvas);
+                sprite.material.map = colorTexture;
+                sprite.material.needsUpdate = true;
+              }
             }
           );
           
-          return sphere;
+          const material = new THREE.SpriteMaterial({ 
+            map: texture,
+            transparent: true,
+            opacity: 0.9
+          });
+          const sprite = new THREE.Sprite(material);
+          sprite.scale.set(22, 22, 1);
+          nodeSprites.set(node.id, sprite);
+          return sprite;
         })
         .nodeColor(getNodeColor) // Don't let force graph tint anything
         .linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
@@ -819,8 +805,7 @@
           Graph.cameraPosition(newPos, node, 2000);
         })
         .onEngineStop(() => {
-          // Remove loading indicator immediately when graph is ready
-          document.getElementById('loading').classList.add('hidden');
+          // Graph is ready - no loading indicator to hide
         });
 
       Graph.controls().enableDamping = true;
