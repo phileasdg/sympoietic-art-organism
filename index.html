@@ -564,6 +564,9 @@
     const nodes = imgs.map((img, id) => ({ id, img }));
     const links = [];
 
+    // Track original textures for proper restoration
+    const originalTextures = new Map();
+
     // Build links from adjacency matrix
     for (let i = 0; i < adjacencyMatrix.length; i++) {
       for (let j = 0; j < adjacencyMatrix[i].length; j++) {
@@ -634,7 +637,7 @@
       }
 
       if (currentCommunityView === 'none') {
-        return '#6B8E72';
+        return '#ffffff'; // Changed to white for default view
       }
 
       const communities = communityDefinitions[currentCommunityView];
@@ -648,7 +651,7 @@
         }
       }
       
-      return '#6B8E72'; // Default color
+      return '#ffffff'; // Changed to white as fallback
     }
 
     // Get link color based on current community view
@@ -712,34 +715,36 @@
         .graphData(gData)
         .backgroundColor('rgba(0,0,0,0)')
         .nodeThreeObject(node => {
-          // Create sprite with image (like your original working code)
+          // Create sprite with image
           const texture = new THREE.TextureLoader().load(
             `./art-thumbnails/${node.img}`,
             // Success callback
             (texture) => {
               texture.colorSpace = THREE.SRGBColorSpace;
-              // Image loaded successfully, sprite will display it
+              // Store the original texture for later restoration
+              originalTextures.set(node.id, texture);
             },
             // Progress callback
             undefined,
             // Error callback - replace sprite material with colored material
             (error) => {
               console.log(`Image failed for node ${node.id}, using colored fallback`);
-              // Replace the sprite's material with a colored one
+              // Create a colored canvas texture
+              const canvas = document.createElement('canvas');
+              canvas.width = 64;
+              canvas.height = 64;
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = getNodeColor(node);
+              ctx.fillRect(0, 0, 64, 64);
+              
+              const colorTexture = new THREE.CanvasTexture(canvas);
               const sprite = nodeSprites.get(node.id);
               if (sprite) {
-                // Create a simple colored texture
-                const canvas = document.createElement('canvas');
-                canvas.width = 64;
-                canvas.height = 64;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = getNodeColor(node);
-                ctx.fillRect(0, 0, 64, 64);
-                
-                const colorTexture = new THREE.CanvasTexture(canvas);
                 sprite.material.map = colorTexture;
                 sprite.material.needsUpdate = true;
               }
+              // Mark that this node doesn't have an original texture
+              originalTextures.set(node.id, null);
             }
           );
           
@@ -753,7 +758,7 @@
           nodeSprites.set(node.id, sprite);
           return sprite;
         })
-        .nodeColor(getNodeColor) // Don't let force graph tint anything
+        .nodeColor(() => null) // Completely disable force graph coloring
         .linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
         .linkDirectionalParticles(link => highlightLinks.has(link) ? 3 : 0)
         .linkDirectionalParticleWidth(2)
@@ -814,8 +819,6 @@
       Graph.controls().autoRotateSpeed = 0.5;
     }
 
-    // Remove the problematic animateScale function since we're not using it anymore
-
     function updateHighlight() {
       Graph
         .nodeColor(getNodeColor)
@@ -827,20 +830,21 @@
     }
 
     function updateCommunityView() {
-      // Update node colors for both sprites and spheres
+      // Only update node colors for fallback spheres, not sprites
       nodeSprites.forEach((nodeObject, nodeId) => {
         const node = nodes.find(n => n.id === nodeId);
-        const color = getNodeColor(node);
         
-        if (nodeObject.material && nodeObject.material.color) {
-          // This is a sphere (fallback)
+        // Only apply color tinting if this is a fallback sphere (no original texture)
+        if (originalTextures.get(nodeId) === null && nodeObject.material && nodeObject.material.color) {
+          const color = getNodeColor(node);
           nodeObject.material.color.set(color);
         }
-        // Sprites will get their color from the nodeColor function
+        // For sprites with textures, we don't apply any color tinting in default view
+        // The force graph's nodeColor function will handle community coloring
       });
 
       Graph
-        .nodeColor(getNodeColor)
+        .nodeColor(currentCommunityView === 'none' ? () => null : getNodeColor)
         .linkColor(getLinkColor)
         .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#8FA68E' : getLinkColor(link))
         .nodeLabel(getNodeLabel);
