@@ -6,36 +6,45 @@
   <title>Sympoietic Art Organism</title>
 
   <!-- Modern Font -->
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: 'DM Sans', system-ui, sans-serif;
-      background: #101011;
-      color: #a3d9ca;
+      background: #0f1419;
+      color: #c2d4d0;
       overflow: hidden;
+      cursor: default;
     }
 
+    /* Refined menu with subtle elegance */
     #menu {
       position: fixed;
-      top: 16px;
-      left: 16px;
-      background: rgba(20, 30, 40, 0.9);
+      top: 20px;
+      left: 20px;
+      background: rgba(20, 30, 40, 0.90);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(100, 140, 130, 0.15);
       border-radius: 12px;
-      padding: 16px 24px;
-      width: 400px;
+      padding: 20px 26px;
+      width: 420px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
       z-index: 100;
-      box-shadow: inset 0 0 12px rgba(0, 238, 170, 0.1);
-      transition: width 0.3s ease, padding 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      transform-origin: top left;
     }
 
     #menu.closed {
       width: auto;
-      padding: 16px 12px;
+      padding: 16px 14px;
       flex-direction: row;
       align-items: center;
     }
@@ -43,7 +52,7 @@
     #title-container {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       flex-grow: 1;
     }
 
@@ -54,29 +63,32 @@
     }
 
     #title {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 600;
       margin: 0;
-      color: #a3d9ca;
+      color: #c2d4d0;
       text-decoration: none;
       transition: color 0.2s ease;
     }
 
     #title:hover {
-      color: #00eeaa;
+      color: #7db8a8;
     }
 
     #subtitle {
-      font-size: 1rem;
-      opacity: 0.8;
-      color: #a3d9ca;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      opacity: 0.85;
+      color: #c2d4d0;
+      margin: 0;
     }
 
+    /* Refined navigation */
     #nav-box {
-      background: rgba(0, 238, 170, 0.1);
-      border: 1px solid rgba(0, 238, 170, 0.2);
+      background: rgba(100, 140, 130, 0.06);
+      border: 1px solid rgba(100, 140, 130, 0.12);
       border-radius: 8px;
-      padding: 12px;
+      padding: 16px;
     }
 
     nav ul {
@@ -85,23 +97,24 @@
       padding: 0;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     nav ul li a {
-      color: #a3d9ca;
+      color: #c2d4d0;
       text-decoration: none;
-      font-weight: 600;
-      font-size: 1.1rem;
-      padding: 6px 12px;
-      border-radius: 10px;
-      transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      font-weight: 500;
+      font-size: 1.05rem;
+      padding: 10px 16px;
+      border-radius: 6px;
+      display: block;
+      transition: all 0.2s ease;
     }
 
     nav ul li a:hover {
-      background-color: #00eeaa;
-      color: #042822;
-      box-shadow: 0 0 8px 2px #00eeaa88;
+      background: #7db8a8;
+      color: #1a2a2e;
+      transform: translateX(2px);
     }
 
     #title-vertical {
@@ -110,76 +123,92 @@
 
     #menu.closed #title-vertical {
       display: block;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 600;
-      color: #a3d9ca;
+      color: #c2d4d0;
       writing-mode: vertical-rl;
       text-orientation: mixed;
-      max-height: 160px;
+      max-height: 180px;
     }
 
     #buttons-container {
       display: flex;
       gap: 12px;
+      align-items: center;
     }
 
     #menu.closed #buttons-container {
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
     }
 
+    /* Refined buttons */
     button {
-      background: #184e68;
-      border: none;
-      border-radius: 12px;
-      color: #a3d9ca;
+      background: rgba(50, 70, 80, 0.8);
+      border: 1px solid rgba(100, 140, 130, 0.2);
+      border-radius: 8px;
+      color: #c2d4d0;
       cursor: pointer;
-      padding: 10px 18px;
-      font-size: 1rem;
-      transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
     }
 
     button:hover {
-      background: #00eeaa;
-      color: #042822;
-      box-shadow: 0 0 8px 2px #00eeaa88;
+      background: #7db8a8;
+      color: #1a2a2e;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(0);
     }
 
     #toggle-btn {
-      width: 40px;
-      height: 40px;
-      font-size: 1.5rem;
+      width: 44px;
+      height: 44px;
+      font-size: 1.4rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.3s ease;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    #toggle-btn:hover {
+      transform: scale(1.05);
     }
 
     #menu.closed #copy-btn {
       padding: 0;
-      width: 40px;
-      height: 170px;
+      width: 44px;
+      height: 180px;
       writing-mode: vertical-rl;
       text-orientation: mixed;
-      font-size: 1rem;
+      font-size: 0.9rem;
+      border-radius: 10px;
     }
 
+    /* Refined copy confirmation */
     #copy-confirmation {
       position: fixed;
-      bottom: 30px;
+      bottom: 40px;
       left: 50%;
-      transform: translate(-50%, 20px);
-      background: #00eeaacc;
-      color: #042822;
-      padding: 10px 24px;
-      border-radius: 14px;
+      transform: translate(-50%, 40px);
+      background: #7db8a8;
+      color: #1a2a2e;
+      padding: 12px 24px;
+      border-radius: 8px;
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.95rem;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      transition: all 0.3s ease;
       z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
     #copy-confirmation.visible {
@@ -188,6 +217,7 @@
       pointer-events: auto;
     }
 
+    /* Refined 3D graph container */
     #3d-graph {
       position: fixed;
       top: 0;
@@ -195,54 +225,117 @@
       right: 0;
       bottom: 0;
       z-index: 0;
-      background: #000003;
+      background: radial-gradient(ellipse at center, #1a252f 0%, #0f1419 100%);
     }
 
-    /* Radial fade overlay */
+    /* Subtle overlay */
     #graph-overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse at center, rgba(0,0,0,0) 50%, #0f1520 100%);
+      background: 
+        radial-gradient(ellipse at center, rgba(0,0,0,0) 50%, rgba(15, 20, 25, 0.6) 100%);
       z-index: 1;
       pointer-events: none;
     }
 
-    /* Responsive tweaks */
+    /* Loading indicator */
+    #loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #7db8a8;
+      font-size: 1.1rem;
+      z-index: 10;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    #loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 2px solid rgba(125, 184, 168, 0.2);
+      border-top: 2px solid #7db8a8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive improvements */
     @media (max-width: 768px) {
       #menu {
-        width: 90vw;
-        padding: 12px 16px;
+        width: calc(100vw - 40px);
+        padding: 16px 20px;
+        top: 16px;
+        left: 16px;
       }
 
       #menu.closed {
         padding: 12px 10px;
+        width: auto;
       }
 
       #title {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
       }
 
       #subtitle {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
       }
 
       nav ul li a {
-        font-size: 1rem;
+        font-size: 0.95rem;
+        padding: 8px 12px;
       }
 
       button {
-        font-size: 0.9rem;
-        padding: 8px 14px;
+        font-size: 0.85rem;
+        padding: 10px 16px;
       }
 
       #menu.closed #copy-btn {
-        height: 120px;
-        font-size: 0.8rem;
+        height: 140px;
+        width: 40px;
+        font-size: 0.75rem;
       }
 
       #title-vertical {
-        max-height: 120px;
+        max-height: 140px;
+        font-size: 1.1rem;
       }
+
+      #copy-confirmation {
+        bottom: 30px;
+        padding: 10px 20px;
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* Focus states for keyboard navigation */
+    button:focus,
+    nav ul li a:focus {
+      outline: 2px solid #7db8a8;
+      outline-offset: 2px;
     }
   </style>
 
@@ -250,6 +343,11 @@
 </head>
 
 <body>
+  <div id="loading">
+    <div class="loading-spinner"></div>
+    Loading network...
+  </div>
+
   <nav id="menu">
     <div id="title-container">
       <a href="https://phileasdg.github.io/sympoietic/" id="title">Sympoietic Art Organism</a>
@@ -264,12 +362,12 @@
       </ul>
     </div>
     <div id="buttons-container">
-      <button id="toggle-btn">×</button>
-      <button id="copy-btn">📋 Copy network adjacency matrix</button>
+      <button id="toggle-btn" aria-label="Toggle menu">×</button>
+      <button id="copy-btn">📋 Copy network<br>adjacency matrix</button>
     </div>
   </nav>
 
-  <div id="copy-confirmation">Copied!</div>
+  <div id="copy-confirmation" role="alert" aria-live="polite">Copied!</div>
   <div id="3d-graph"></div>
   <div id="graph-overlay"></div>
 
@@ -294,6 +392,7 @@
     const nodes = imgs.map((img, id) => ({ id, img }));
     const links = [];
 
+    // Build links from adjacency matrix
     for (let i = 0; i < adjacencyMatrix.length; i++) {
       for (let j = 0; j < adjacencyMatrix[i].length; j++) {
         if (adjacencyMatrix[i][j]) {
@@ -302,6 +401,7 @@
       }
     }
 
+    // Calculate link curvature for bidirectional links
     const linkMap = new Map();
     links.forEach(link => {
       const key = `${link.source},${link.target}`;
@@ -327,6 +427,7 @@
       }
     });
 
+    // Add neighbors and links to nodes
     nodes.forEach(node => {
       node.neighbors = [];
       node.links = [];
@@ -347,80 +448,125 @@
     const highlightLinks = new Set();
     let hoverNode = null;
 
-    const baseArrowLength = 6;
-    const hoverArrowLength = 10;
-
+    const baseArrowLength = 8;
+    const hoverArrowLength = 12;
     const nodeSprites = new Map();
 
-    const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
-      .graphData(gData)
-      .nodeThreeObject(node => {
-        const texture = new THREE.TextureLoader().load(`./art-thumbnails/${node.img}`);
-        texture.colorSpace = THREE.SRGBColorSpace;
-        const material = new THREE.SpriteMaterial({ map: texture });
-        const sprite = new THREE.Sprite(material);
-        sprite.scale.set(20, 20, 1);
-        nodeSprites.set(node.id, sprite);
-        return sprite;
-      })
-      .nodeColor(node => highlightNodes.has(node) ? (node === hoverNode ? '#D2691E' : '#FF8C00') : '#6B8E23')
-      .linkWidth(link => highlightLinks.has(link) ? 4 : 1)
-      .linkDirectionalParticles(link => highlightLinks.has(link) ? 4 : 0)
-      .linkDirectionalParticleWidth(4)
-      .linkDirectionalArrowLength(link => highlightLinks.has(link) ? hoverArrowLength : baseArrowLength)
-      .linkDirectionalArrowRelPos(0.9)
-      .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#FF4500' : '#00EEAA')
-      .linkColor(link => highlightLinks.has(link) ? '#FF8C00' : '#00EEAA')
-      .linkCurvature(link => link.curvature || 0)
-      .linkCurveRotation(link => link.rotation || 0)
-      .nodeLabel(node => {
-        // Extract file name without the path and extension
-        const fileName = node.img.split('/').pop().split('.')[0];
-        return fileName;})
-      .onNodeHover(node => {
-        if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return;
+    let Graph;
 
-        highlightNodes.clear();
-        highlightLinks.clear();
+    // Initialize the graph
+    function initGraph() {
+      Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+        .graphData(gData)
+        .backgroundColor('rgba(0,0,0,0)')
+        .nodeThreeObject(node => {
+          const texture = new THREE.TextureLoader().load(`./art-thumbnails/${node.img}`);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          const material = new THREE.SpriteMaterial({ 
+            map: texture,
+            transparent: true,
+            opacity: 0.9
+          });
+          const sprite = new THREE.Sprite(material);
+          sprite.scale.set(22, 22, 1);
+          nodeSprites.set(node.id, sprite);
+          return sprite;
+        })
+        .nodeColor(node => {
+          if (highlightNodes.has(node)) {
+            return node === hoverNode ? '#8FA68E' : '#A8C2A0';
+          }
+          return '#6B8E72';
+        })
+        .linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
+        .linkDirectionalParticles(link => highlightLinks.has(link) ? 3 : 0)
+        .linkDirectionalParticleWidth(2)
+        .linkDirectionalParticleSpeed(0.006)
+        .linkDirectionalArrowLength(link => highlightLinks.has(link) ? hoverArrowLength : baseArrowLength)
+        .linkDirectionalArrowRelPos(0.85)
+        .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#8FA68E' : '#7db8a8')
+        .linkColor(link => highlightLinks.has(link) ? '#A8C2A0' : '#7db8a8')
+        .linkOpacity(0.8)
+        .linkCurvature(link => link.curvature || 0)
+        .linkCurveRotation(link => link.rotation || 0)
+        .nodeLabel(node => {
+          const fileName = node.img.split('/').pop().split('.')[0];
+          return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: #c2d4d0; font-size: 12px; font-weight: 500;">${fileName}</div>`;
+        })
+        .onNodeHover(node => {
+          if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return;
 
-        if (node) {
-          highlightNodes.add(node);
-          node.neighbors.forEach(n => highlightNodes.add(n));
-          node.links.forEach(l => highlightLinks.add(l));
+          highlightNodes.clear();
+          highlightLinks.clear();
+
+          if (node) {
+            highlightNodes.add(node);
+            node.neighbors.forEach(n => highlightNodes.add(n));
+            node.links.forEach(l => highlightLinks.add(l));
+          }
+
+          // Animate node scaling
+          nodeSprites.forEach((sprite, id) => {
+            const targetScale = (node && id === node.id) ? 32 : 22;
+            animateScale(sprite, targetScale);
+          });
+
+          hoverNode = node || null;
+          updateHighlight();
+        })
+        .onLinkHover(link => {
+          highlightNodes.clear();
+          highlightLinks.clear();
+
+          if (link) {
+            highlightLinks.add(link);
+            highlightNodes.add(link.source);
+            highlightNodes.add(link.target);
+          }
+
+          updateHighlight();
+        })
+        .onNodeClick(node => {
+          if (!node) return;
+          const distance = 60;
+          const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+          const newPos = {
+            x: node.x * distRatio,
+            y: node.y * distRatio,
+            z: node.z * distRatio
+          };
+          Graph.cameraPosition(newPos, node, 2000);
+        })
+        .onEngineStop(() => {
+          // Hide loading indicator when graph is ready
+          setTimeout(() => {
+            document.getElementById('loading').classList.add('hidden');
+          }, 500);
+        });
+
+      // Enhanced controls
+      Graph.controls().enableDamping = true;
+      Graph.controls().dampingFactor = 0.05;
+      Graph.controls().autoRotate = false;
+      Graph.controls().autoRotateSpeed = 0.5;
+    }
+
+    function animateScale(sprite, targetScale) {
+      const currentScale = sprite.scale.x;
+      const steps = 10;
+      const stepSize = (targetScale - currentScale) / steps;
+      let step = 0;
+
+      function animate() {
+        if (step < steps) {
+          const newScale = currentScale + stepSize * step;
+          sprite.scale.set(newScale, newScale, 1);
+          step++;
+          requestAnimationFrame(animate);
         }
-
-        nodeSprites.forEach(sprite => sprite.scale.set(20, 20, 1));
-        if (node) {
-          const sprite = nodeSprites.get(node.id);
-          if (sprite) sprite.scale.set(30, 30, 1);
-        }
-
-        hoverNode = node || null;
-        updateHighlight();
-      })
-      .onLinkHover(link => {
-        highlightNodes.clear();
-        highlightLinks.clear();
-
-        if (link) {
-          highlightLinks.add(link);
-          highlightNodes.add(link.source);
-          highlightNodes.add(link.target);
-        }
-
-        updateHighlight();
-      })
-      .onNodeClick(node => {
-        if (!node) return;
-        const distance = 40;
-        const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
-        const newPos = {
-          x: node.x * distRatio,
-          y: node.y * distRatio,
-          z: node.z * distRatio
-        };
-        Graph.cameraPosition(newPos, node, 3000);
-      });
+      }
+      animate();
+    }
 
     function updateHighlight() {
       Graph
@@ -432,27 +578,73 @@
         .linkColor(Graph.linkColor());
     }
 
-    // Menu toggle with rotation
+    // Enhanced menu toggle
     const toggleBtn = document.getElementById('toggle-btn');
+    const menu = document.getElementById('menu');
+    let isMenuOpen = true;
+
     toggleBtn.addEventListener('click', () => {
-      const menu = document.getElementById('menu');
-      const closed = menu.classList.toggle('closed');
-      toggleBtn.textContent = closed ? '☰' : '×';
-      toggleBtn.style.transform = closed ? 'rotate(0deg)' : 'rotate(90deg)';
+      isMenuOpen = !isMenuOpen;
+      menu.classList.toggle('closed', !isMenuOpen);
+      toggleBtn.textContent = isMenuOpen ? '×' : '☰';
+      toggleBtn.setAttribute('aria-expanded', isMenuOpen);
     });
 
-    // Copy matrix
+    // Enhanced copy functionality
     document.getElementById('copy-btn').addEventListener('click', async () => {
       try {
         const text = '[\n' + adjacencyMatrix.map(row => '  [' + row.join(', ') + ']').join(',\n') + '\n]';
         await navigator.clipboard.writeText(text);
+        
         const confirm = document.getElementById('copy-confirmation');
         confirm.classList.add('visible');
-        setTimeout(() => confirm.classList.remove('visible'), 1500);
+        
+        // Enhanced feedback
+        setTimeout(() => {
+          confirm.classList.remove('visible');
+        }, 2000);
       } catch (err) {
-        alert('Copy failed');
+        console.error('Copy failed:', err);
+        // Fallback for browsers that don't support clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = '[\n' + adjacencyMatrix.map(row => '  [' + row.join(', ') + ']').join(',\n') + '\n]';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          const confirm = document.getElementById('copy-confirmation');
+          confirm.classList.add('visible');
+          setTimeout(() => confirm.classList.remove('visible'), 2000);
+        } catch (fallbackErr) {
+          alert('Copy failed. Please try selecting the text manually.');
+        }
+        document.body.removeChild(textArea);
       }
     });
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      // Add a fallback timeout in case onEngineStop doesn't fire
+      setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+      }, 3000);
+      
+      setTimeout(initGraph, 100); // Small delay to ensure DOM is ready
+    });
+
+    // Add keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !isMenuOpen) {
+        toggleBtn.click();
+      }
+    });
+
+    // Performance optimization for mobile
+    if (window.innerWidth <= 768) {
+      // Reduce particle count for mobile
+      baseArrowLength = 6;
+      hoverArrowLength = 8;
+    }
   </script>
 </body>
 </html>
