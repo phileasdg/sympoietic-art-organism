@@ -717,59 +717,52 @@
         .graphData(gData)
         .backgroundColor('rgba(0,0,0,0)')
         .nodeThreeObject(node => {
-          const texture = new THREE.TextureLoader().load(`./art-thumbnails/${node.img}`,
-            // Success callback
-            (texture) => {
-              texture.colorSpace = THREE.SRGBColorSpace;
-            },
-            // Progress callback
-            undefined,
-            // Error callback - create colored sphere fallback
-            (error) => {
-              console.log(`Image failed for node ${node.id}, using sphere fallback`);
-              // Create fallback sphere
-              const geometry = new THREE.SphereGeometry(11, 16, 16);
-              const material = new THREE.MeshBasicMaterial({ 
-                color: getNodeColor(node),
-                transparent: true,
-                opacity: 0.9
-              });
-              const sphere = new THREE.Mesh(geometry, material);
-              nodeSprites.set(node.id, sphere);
-              
-              // Replace the sprite with sphere in the scene
-              const sprite = nodeSprites.get(node.id);
-              if (sprite && sprite.parent) {
-                const parent = sprite.parent;
-                sphere.position.copy(sprite.position);
-                parent.remove(sprite);
-                parent.add(sphere);
-              }
-              return sphere;
-            }
-          );
+          // Try to load image first
+          const textureLoader = new THREE.TextureLoader();
           
-          texture.colorSpace = THREE.SRGBColorSpace;
-          const material = new THREE.SpriteMaterial({ 
-            map: texture,
+          // Create fallback sphere immediately
+          const geometry = new THREE.SphereGeometry(11, 16, 16);
+          const material = new THREE.MeshBasicMaterial({ 
+            color: getNodeColor(node),
             transparent: true,
             opacity: 0.9
           });
-          const sprite = new THREE.Sprite(material);
-          sprite.scale.set(22, 22, 1);
-          nodeSprites.set(node.id, sprite);
-          return sprite;
+          const sphere = new THREE.Mesh(geometry, material);
+          nodeSprites.set(node.id, sphere);
+          
+          // Try to load texture and replace if successful
+          textureLoader.load(
+            `./art-thumbnails/${node.img}`,
+            // Success - create sprite
+            (texture) => {
+              texture.colorSpace = THREE.SRGBColorSpace;
+              const spriteMaterial = new THREE.SpriteMaterial({ 
+                map: texture,
+                transparent: true,
+                opacity: 1.0 // Full opacity for images
+              });
+              const sprite = new THREE.Sprite(spriteMaterial);
+              sprite.scale.set(22, 22, 1);
+              
+              // Replace sphere with sprite
+              if (sphere.parent) {
+                const parent = sphere.parent;
+                parent.remove(sphere);
+                parent.add(sprite);
+                nodeSprites.set(node.id, sprite);
+              }
+            },
+            undefined,
+            // Error - keep the sphere
+            (error) => {
+              console.log(`Using fallback sphere for node ${node.id}`);
+              // Sphere is already created and in place
+            }
+          );
+          
+          return sphere; // Always return the sphere initially
         })
-        .nodeColor(node => {
-          // Only apply color to sphere fallbacks, not sprites
-          const nodeObject = nodeSprites.get(node.id);
-          if (nodeObject && nodeObject.material && !nodeObject.material.map) {
-            // This is a sphere (no texture map), apply community colors
-            return getNodeColor(node);
-          }
-          // This is a sprite (has texture), don't tint it
-          return 'white';
-        })
+        .nodeColor(() => 'white') // Don't let force graph tint anything
         .linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
         .linkDirectionalParticles(link => highlightLinks.has(link) ? 3 : 0)
         .linkDirectionalParticleWidth(2)
