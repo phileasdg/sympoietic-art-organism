@@ -723,6 +723,13 @@
               texture.colorSpace = THREE.SRGBColorSpace;
               // Store the original texture for later restoration
               originalTextures.set(node.id, texture);
+              
+              // Apply initial color tinting to the loaded sprite
+              const sprite = nodeSprites.get(node.id);
+              if (sprite && sprite.material) {
+                sprite.material.color.set(getNodeColor(node));
+                sprite.material.needsUpdate = true;
+              }
             },
             // Progress callback
             undefined,
@@ -751,7 +758,8 @@
           const material = new THREE.SpriteMaterial({ 
             map: texture,
             transparent: true,
-            opacity: 0.9
+            opacity: 0.9,
+            color: getNodeColor(node) // Set initial color
           });
           const sprite = new THREE.Sprite(material);
           sprite.scale.set(22, 22, 1);
@@ -820,8 +828,18 @@
     }
 
     function updateHighlight() {
+      // Update sprite colors for highlighting
+      nodeSprites.forEach((sprite, nodeId) => {
+        const node = nodes.find(n => n.id === nodeId);
+        const color = getNodeColor(node);
+        
+        if (sprite && sprite.material) {
+          sprite.material.color.set(color);
+          sprite.material.needsUpdate = true;
+        }
+      });
+
       Graph
-        .nodeColor(getNodeColor)
         .linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
         .linkDirectionalParticles(link => highlightLinks.has(link) ? 3 : 0)
         .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#7ED377' : getLinkColor(link))
@@ -830,21 +848,18 @@
     }
 
     function updateCommunityView() {
-      // Only update node colors for fallback spheres, not sprites
-      nodeSprites.forEach((nodeObject, nodeId) => {
+      // Update all sprites with the current color
+      nodeSprites.forEach((sprite, nodeId) => {
         const node = nodes.find(n => n.id === nodeId);
+        const color = getNodeColor(node);
         
-        // Only apply color tinting if this is a fallback sphere (no original texture)
-        if (originalTextures.get(nodeId) === null && nodeObject.material && nodeObject.material.color) {
-          const color = getNodeColor(node);
-          nodeObject.material.color.set(color);
+        if (sprite && sprite.material) {
+          sprite.material.color.set(color);
+          sprite.material.needsUpdate = true;
         }
-        // For sprites with textures, we don't apply any color tinting in default view
-        // The force graph's nodeColor function will handle community coloring
       });
 
       Graph
-        .nodeColor(currentCommunityView === 'none' ? () => null : getNodeColor)
         .linkColor(getLinkColor)
         .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#8FA68E' : getLinkColor(link))
         .nodeLabel(getNodeLabel);
