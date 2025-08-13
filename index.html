@@ -717,6 +717,9 @@
         .graphData(gData)
         .backgroundColor('rgba(0,0,0,0)')
         .nodeThreeObject(node => {
+          // Create a container group
+          const group = new THREE.Group();
+          
           // Create a fallback colored sphere
           const geometry = new THREE.SphereGeometry(11, 16, 16);
           const material = new THREE.MeshBasicMaterial({ 
@@ -725,12 +728,13 @@
             opacity: 0.9
           });
           const sphere = new THREE.Mesh(geometry, material);
+          group.add(sphere);
           
           // Try to load the image texture
           const textureLoader = new THREE.TextureLoader();
           textureLoader.load(
             `./art-thumbnails/${node.img}`,
-            // Success callback - replace sphere with sprite
+            // Success callback - add sprite and hide sphere
             (texture) => {
               texture.colorSpace = THREE.SRGBColorSpace;
               const spriteMaterial = new THREE.SpriteMaterial({ 
@@ -741,27 +745,25 @@
               const sprite = new THREE.Sprite(spriteMaterial);
               sprite.scale.set(22, 22, 1);
               
-              // Simple replacement - let the force graph handle positioning
-              if (sphere.parent) {
-                const parent = sphere.parent;
-                parent.remove(sphere);
-                parent.add(sprite);
-                // Update the nodeSprites reference to point to the new sprite
-                nodeSprites.set(node.id, sprite);
-              }
+              // Add sprite to group and hide sphere
+              group.add(sprite);
+              sphere.visible = false;
+              
+              // Update nodeSprites to track the sprite
+              nodeSprites.set(node.id, sprite);
             },
             // Progress callback
             undefined,
             // Error callback - keep the colored sphere
             (error) => {
               console.log(`Using fallback sphere for node ${node.id}`);
-              // Sphere is already set in nodeSprites below
+              // Sphere stays visible in the group
             }
           );
           
-          // Initially set the sphere, may be replaced by sprite later
+          // Initially track the sphere
           nodeSprites.set(node.id, sphere);
-          return sphere;
+          return group;
         })
         .nodeColor(getNodeColor)
         .linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
