@@ -741,6 +741,12 @@
               const sprite = new THREE.Sprite(spriteMaterial);
               sprite.scale.set(22, 22, 1);
               
+              // Copy position and other properties from the sphere
+              sprite.position.copy(sphere.position);
+              sprite.rotation.copy(sphere.rotation);
+              sprite.scale.copy(sphere.scale);
+              sprite.scale.set(22, 22, 1); // Then set the correct sprite scale
+              
               // Replace the sphere with the sprite in the scene
               if (sphere.parent) {
                 const parent = sphere.parent;
