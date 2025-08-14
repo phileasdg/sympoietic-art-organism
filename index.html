@@ -22,7 +22,7 @@
       cursor: default;
     }
 
-    /* Refined menu with subtle elegance */
+    /* Menu */
     #menu {
       position: fixed;
       top: 20px;
@@ -84,7 +84,6 @@
       margin: 0;
     }
 
-    /* Refined navigation */
     #nav-box {
       background: rgba(100, 140, 130, 0.06);
       border: 1px solid rgba(100, 140, 130, 0.12);
@@ -188,7 +187,7 @@
       align-items: center;
     }
 
-    /* Refined buttons */
+    /* Buttons */
     button {
       background: rgba(50, 70, 80, 0.8);
       border: 1px solid rgba(100, 140, 130, 0.2);
@@ -237,7 +236,7 @@
       border-radius: 10px;
     }
 
-    /* Refined copy confirmation */
+    /* Copy confirmation */
     #copy-confirmation {
       position: fixed;
       bottom: 40px;
@@ -262,7 +261,7 @@
       pointer-events: auto;
     }
 
-    /* Refined 3D graph container */
+    /* 3D graph container */
     #3d-graph {
       position: fixed;
       top: 0;
@@ -273,31 +272,12 @@
       background: radial-gradient(ellipse at center, #1a252f 0%, #0f1419 100%);
     }
 
-    /* Subtle overlay */
     #graph-overlay {
       position: fixed;
       inset: 0;
       background: 
         radial-gradient(ellipse at center, rgba(0,0,0,0) 50%, rgba(15, 20, 25, 0.6) 100%);
       z-index: 1;
-      pointer-events: none;
-    }
-
-    /* Loading indicator */
-    #loading {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #7db8a8;
-      font-size: 1.1rem;
-      z-index: 10;
-      opacity: 1;
-      transition: opacity 0.3s ease;
-    }
-
-    #loading.hidden {
-      opacity: 0;
       pointer-events: none;
     }
 
@@ -349,19 +329,42 @@
       font-weight: 500;
     }
 
-    .loading-spinner {
-      width: 36px;
-      height: 36px;
-      border: 2px solid rgba(125, 184, 168, 0.2);
-      border-top: 2px solid #7db8a8;
+    /* Breathing toggle button */
+    #breathing-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(20, 30, 40, 0.90);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(100, 140, 130, 0.15);
       border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 12px;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.5rem;
+      color: #7db8a8;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    #breathing-toggle:hover {
+      background: rgba(30, 40, 50, 0.95);
+      transform: scale(1.05);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    #breathing-toggle.active {
+      background: #7db8a8;
+      color: #1a2a2e;
+      box-shadow: 0 0 20px rgba(125, 184, 168, 0.4);
+    }
+
+    #breathing-toggle.active:hover {
+      background: #8dc4b4;
     }
 
     /* Responsive improvements */
@@ -378,39 +381,12 @@
         width: auto;
       }
 
-      #title {
+      #breathing-toggle {
+        bottom: 16px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
         font-size: 1.3rem;
-      }
-
-      #subtitle {
-        font-size: 0.85rem;
-      }
-
-      nav ul li a {
-        font-size: 0.95rem;
-        padding: 8px 12px;
-      }
-
-      button {
-        font-size: 0.85rem;
-        padding: 10px 16px;
-      }
-
-      #menu.closed #copy-btn {
-        height: 140px;
-        width: 40px;
-        font-size: 0.75rem;
-      }
-
-      #title-vertical {
-        max-height: 140px;
-        font-size: 1.1rem;
-      }
-
-      #copy-confirmation {
-        bottom: 30px;
-        padding: 10px 20px;
-        font-size: 0.85rem;
       }
     }
 
@@ -470,12 +446,16 @@
     <h4 id="legend-title">Communities</h4>
     <div id="legend-items"></div>
   </div>
+  <div id="breathing-toggle" title="Toggle organism breathing" aria-label="Toggle breathing animation">
+    💨
+  </div>
   <div id="3d-graph"></div>
   <div id="graph-overlay"></div>
 
   <script type="module">
     import * as THREE from 'https://esm.sh/three';
 
+    // Data
     const adjacencyMatrix = [
       [0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
       [0,0,1,1,0,1,1,1,1,1,1,0,0,0,0,0,0],
@@ -493,30 +473,20 @@
       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
       [0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
-
-    const imgs = [
-      '0-Emerson_Paquette-1.png',
-      '0-Emerson_Paquette-2.jpeg',
-      '0-Emerson_Paquette-3.jpeg',
-      '0-Emerson_Paquette-4.jpeg',
-      '0-Emerson_Paquette-5.jpeg',
-      '0-Emerson_Paquette-6.jpeg',
-      '0-Emerson_Paquette-7.jpeg',
-      '0-Phileas_Dazeley_Gaist-1.png',
-      '0-Phileas_Dazeley_Gaist-2.png',
-      '0-Phileas_Dazeley_Gaist-3.png',
-      '0-Phileas_Dazeley_Gaist-4.png',
-      '0-Phileas_Dazeley_Gaist-5.png',
-      '0-Phileas_Dazeley_Gaist-6.png',
-      '0-Phileas_Dazeley_Gaist-7.png',
-      '0-Phileas_Dazeley_Gaist-8.png',
-      '0-Phileas_Dazeley_Gaist-9.png',
-      '0-Phileas_Dazeley_Gaist-10.png'
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     ];
 
-    // Baked-in community definitions as JSON
-    const communityDefinitions = {
+    const imgs = [
+      '0-Emerson_Paquette-1.png', '0-Emerson_Paquette-2.jpeg', '0-Emerson_Paquette-3.jpeg',
+      '0-Emerson_Paquette-4.jpeg', '0-Emerson_Paquette-5.jpeg', '0-Emerson_Paquette-6.jpeg',
+      '0-Emerson_Paquette-7.jpeg', '0-Phileas_Dazeley_Gaist-1.png', '0-Phileas_Dazeley_Gaist-2.png',
+      '0-Phileas_Dazeley_Gaist-3.png', '0-Phileas_Dazeley_Gaist-4.png', '0-Phileas_Dazeley_Gaist-5.png',
+      '0-Phileas_Dazeley_Gaist-6.png', '0-Phileas_Dazeley_Gaist-7.png', '0-Phileas_Dazeley_Gaist-8.png',
+      '0-Phileas_Dazeley_Gaist-9.png', '0-Phileas_Dazeley_Gaist-10.png'
+    ];
+
+    // Community definitions
+    const communities = {
       artists: {
         "emerson": [0, 1, 2, 3, 4, 5, 6],
         "phileas": [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
@@ -538,205 +508,182 @@
       }
     };
 
-    // Color schemes for each community type
-    const colorSchemes = {
-      artists: {
-        "emerson": "#FF6B6B",
-        "phileas": "#4ECDC4"
-      },
-      artMedium: {
-        "photography": "#FF6B6B",
-        "digital": "#4ECDC4", 
-        "mixed": "#FFA726"
-      },
-      timeCreated: {
-        "early": "#9C27B0",
-        "middle": "#2196F3",
-        "recent": "#4CAF50"
-      },
-      connectionLevel: {
-        "highly_connected": "#F44336",
-        "moderately_connected": "#FF9800",
-        "lightly_connected": "#8BC34A"
-      }
+    const colors = {
+      artists: { "emerson": "#FF6B6B", "phileas": "#4ECDC4" },
+      artMedium: { "photography": "#FF6B6B", "digital": "#4ECDC4", "mixed": "#FFA726" },
+      timeCreated: { "early": "#9C27B0", "middle": "#2196F3", "recent": "#4CAF50" },
+      connectionLevel: { "highly_connected": "#F44336", "moderately_connected": "#FF9800", "lightly_connected": "#8BC34A" }
     };
 
-    const nodes = imgs.map((img, id) => ({ id, img }));
+    // State
+    let Graph;
+    let currentCommunityView = 'none';
+    let isBreathing = false; // Start with breathing off by default
+    let breathingInterval = null;
+    let hoverNode = null;
+    const highlightNodes = new Set();
+    const highlightLinks = new Set();
+    const nodeSprites = new Map();
+
+    // Build graph data
+    const nodes = imgs.map((img, id) => ({ id, img, neighbors: [], links: [] }));
     const links = [];
-
-    // Track original textures for proper restoration
-    const originalTextures = new Map();
-
-    // Build links from adjacency matrix
+    
     for (let i = 0; i < adjacencyMatrix.length; i++) {
       for (let j = 0; j < adjacencyMatrix[i].length; j++) {
         if (adjacencyMatrix[i][j]) {
-          links.push({ source: i, target: j });
+          const link = { source: i, target: j };
+          
+          // Calculate curvature for bidirectional links
+          const revExists = adjacencyMatrix[j] && adjacencyMatrix[j][i];
+          if (revExists) {
+            link.curvature = i < j ? 0.4 : -0.4;
+            link.rotation = i < j ? 0 : Math.PI / 2;
+          } else {
+            link.curvature = 0;
+            link.rotation = 0;
+          }
+          
+          links.push(link);
+          nodes[i].neighbors.push(nodes[j]);
+          nodes[j].neighbors.push(nodes[i]);
+          nodes[i].links.push(link);
+          nodes[j].links.push(link);
         }
       }
     }
 
-    // Calculate link curvature for bidirectional links
-    const linkMap = new Map();
-    links.forEach(link => {
-      const key = `${link.source},${link.target}`;
-      linkMap.set(key, link);
-    });
-
-    links.forEach(link => {
-      const revKey = `${link.target},${link.source}`;
-      if (link.source === link.target) {
-        link.curvature = 0.5;
-        link.rotation = 0;
-      } else if (linkMap.has(revKey)) {
-        if (link.source < link.target) {
-          link.curvature = 0.4;
-          link.rotation = 0;
-        } else {
-          link.curvature = -0.4;
-          link.rotation = Math.PI / 2;
-        }
-      } else {
-        link.curvature = 0;
-        link.rotation = 0;
-      }
-    });
-
-    // Add neighbors and links to nodes
-    nodes.forEach(node => {
-      node.neighbors = [];
-      node.links = [];
-    });
-
-    links.forEach(link => {
-      const source = nodes[link.source];
-      const target = nodes[link.target];
-      source.neighbors.push(target);
-      target.neighbors.push(source);
-      source.links.push(link);
-      target.links.push(link);
-    });
-
-    const gData = { nodes, links };
-
-    const highlightNodes = new Set();
-    const highlightLinks = new Set();
-    let hoverNode = null;
-    let currentCommunityView = 'none';
-
-    const baseArrowLength = 8;
-    const hoverArrowLength = 12;
-    const nodeSprites = new Map();
-
-    let Graph;
-
-    // Get node color based on current community view
+    // Helper functions
     function getNodeColor(node) {
       if (highlightNodes.has(node)) {
-        return node === hoverNode ? '#A8E6A3' : '#C8F4C3'; // Bright earthy green tones
+        return node === hoverNode ? '#A8E6A3' : '#C8F4C3';
       }
-
-      if (currentCommunityView === 'none') {
-        return '#ffffff'; // Changed to white for default view
-      }
-
-      const communities = communityDefinitions[currentCommunityView];
-      const colors = colorSchemes[currentCommunityView];
       
-      if (communities && colors) {
-        for (const [communityName, nodeList] of Object.entries(communities)) {
-          if (nodeList.includes(node.id)) {
-            return colors[communityName];
-          }
+      if (currentCommunityView === 'none') return '#ffffff';
+      
+      const communityData = communities[currentCommunityView];
+      const colorData = colors[currentCommunityView];
+      
+      if (communityData && colorData) {
+        for (const [name, nodeList] of Object.entries(communityData)) {
+          if (nodeList.includes(node.id)) return colorData[name];
         }
       }
       
-      return '#ffffff'; // Changed to white as fallback
+      return '#ffffff';
     }
 
-    // Get link color based on current community view
     function getLinkColor(link) {
-      if (highlightLinks.has(link)) return '#7ED377'; // Vibrant earthy green for highlighted links
-
-      if (currentCommunityView === 'none') {
-        return '#7db8a8';
-      }
-
-      const communities = communityDefinitions[currentCommunityView];
-      const colors = colorSchemes[currentCommunityView];
+      if (highlightLinks.has(link)) return '#7ED377';
+      if (currentCommunityView === 'none') return '#7db8a8';
       
-      if (communities && colors) {
+      const communityData = communities[currentCommunityView];
+      const colorData = colors[currentCommunityView];
+      
+      if (communityData && colorData) {
         let sourceCommunity = null;
         let targetCommunity = null;
         
-        // Find which communities the nodes belong to
-        for (const [communityName, nodeList] of Object.entries(communities)) {
-          if (nodeList.includes(link.source)) sourceCommunity = communityName;
-          if (nodeList.includes(link.target)) targetCommunity = communityName;
+        for (const [name, nodeList] of Object.entries(communityData)) {
+          if (nodeList.includes(link.source)) sourceCommunity = name;
+          if (nodeList.includes(link.target)) targetCommunity = name;
         }
         
-        // If both nodes are in the same community, use that color
-        if (sourceCommunity && targetCommunity && sourceCommunity === targetCommunity) {
-          return colors[sourceCommunity];
-        }
-        
-        // If they're in different communities, use a neutral bridge color
-        if (sourceCommunity && targetCommunity && sourceCommunity !== targetCommunity) {
-          return '#FFA726';
+        if (sourceCommunity && targetCommunity) {
+          return sourceCommunity === targetCommunity ? colorData[sourceCommunity] : '#FFA726';
         }
       }
       
-      return '#7db8a8'; // Default color
+      return '#7db8a8';
     }
 
-    // Get node label with community info
-    function getNodeLabel(node) {
-      const fileName = node.img.split('/').pop().split('.')[0];
-      let communityInfo = '';
-      
-      if (currentCommunityView !== 'none') {
-        const communities = communityDefinitions[currentCommunityView];
-        if (communities) {
-          for (const [communityName, nodeList] of Object.entries(communities)) {
-            if (nodeList.includes(node.id)) {
-              communityInfo = `<br><small>${communityName.replace('_', ' ')}</small>`;
-              break;
-            }
-          }
+    function updateHighlight() {
+      nodeSprites.forEach((sprite, nodeId) => {
+        const node = nodes.find(n => n.id === nodeId);
+        const color = getNodeColor(node);
+        if (sprite?.material) {
+          sprite.material.color.set(color);
+          sprite.material.needsUpdate = true;
         }
+      });
+
+      Graph
+        .linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
+        .linkDirectionalParticles(link => highlightLinks.has(link) ? 3 : 0)
+        .linkDirectionalArrowLength(link => highlightLinks.has(link) ? 12 : 8)
+        .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#7ED377' : getLinkColor(link))
+        .linkColor(getLinkColor);
+    }
+
+    // Breathing system
+    function startBreathing() {
+      if (breathingInterval) return;
+      
+      let phase = 0;
+      const nodeData = new Map();
+      
+      nodeSprites.forEach((sprite, nodeId) => {
+        const node = nodes.find(n => n.id === nodeId);
+        if (node && sprite) {
+          const connectionCount = node.neighbors.length;
+          const wavePhase = (nodeId * 0.8 + connectionCount * 0.3) * Math.PI / 4;
+          nodeData.set(nodeId, { sprite, wavePhase });
+        }
+      });
+
+      breathingInterval = setInterval(() => {
+        phase += 0.015;
+        
+        nodeData.forEach(({ sprite, wavePhase }) => {
+          const nodePhase = phase + wavePhase;
+          const scale = 22 * (1 + 0.25 * Math.sin(nodePhase));
+          sprite.scale.setScalar(scale);
+        });
+
+        const linkOpacity = 0.65 + 0.2 * (
+          Math.sin(phase * 0.8) * 0.3 + 
+          Math.sin(phase * 1.2) * 0.4 + 
+          Math.sin(phase * 0.6) * 0.3
+        );
+        Graph.linkOpacity(Math.max(0.4, Math.min(0.9, linkOpacity)));
+      }, 40);
+    }
+
+    function stopBreathing() {
+      if (breathingInterval) {
+        clearInterval(breathingInterval);
+        breathingInterval = null;
       }
       
-      return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: #c2d4d0; font-size: 12px; font-weight: 500;">${fileName}${communityInfo}</div>`;
+      nodeSprites.forEach(sprite => {
+        if (sprite) sprite.scale.setScalar(22);
+      });
+      
+      Graph.linkOpacity(0.8);
     }
 
-    // Initialize the graph
+    // Initialize graph
     function initGraph() {
       Graph = ForceGraph3D()(document.getElementById('3d-graph'))
-        .graphData(gData)
+        .graphData({ nodes, links })
         .backgroundColor('rgba(0,0,0,0)')
         .nodeThreeObject(node => {
-          // Create sprite with image
           const texture = new THREE.TextureLoader().load(
             `./art-thumbnails/${node.img}`,
             // Success callback
             (texture) => {
               texture.colorSpace = THREE.SRGBColorSpace;
-              // Store the original texture for later restoration
-              originalTextures.set(node.id, texture);
-              
-              // Apply initial color tinting to the loaded sprite
               const sprite = nodeSprites.get(node.id);
-              if (sprite && sprite.material) {
+              if (sprite?.material) {
                 sprite.material.color.set(getNodeColor(node));
                 sprite.material.needsUpdate = true;
               }
             },
             // Progress callback
             undefined,
-            // Error callback - replace sprite material with colored material
+            // Error callback - create colored fallback
             (error) => {
               console.log(`Image failed for node ${node.id}, using colored fallback`);
-              // Create a colored canvas texture
               const canvas = document.createElement('canvas');
               canvas.width = 64;
               canvas.height = 64;
@@ -750,8 +697,6 @@
                 sprite.material.map = colorTexture;
                 sprite.material.needsUpdate = true;
               }
-              // Mark that this node doesn't have an original texture
-              originalTextures.set(node.id, null);
             }
           );
           
@@ -759,26 +704,40 @@
             map: texture,
             transparent: true,
             opacity: 0.9,
-            color: getNodeColor(node) // Set initial color
+            color: getNodeColor(node)
           });
+          
           const sprite = new THREE.Sprite(material);
           sprite.scale.set(22, 22, 1);
           nodeSprites.set(node.id, sprite);
           return sprite;
         })
-        .nodeColor(() => null) // Completely disable force graph coloring
-        .linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
-        .linkDirectionalParticles(link => highlightLinks.has(link) ? 3 : 0)
-        .linkDirectionalParticleWidth(2)
-        .linkDirectionalParticleSpeed(0.006)
-        .linkDirectionalArrowLength(link => highlightLinks.has(link) ? hoverArrowLength : baseArrowLength)
+        .nodeColor(() => null)
+        .linkWidth(1.5)
+        .linkDirectionalArrowLength(8)
         .linkDirectionalArrowRelPos(0.85)
-        .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#7ED377' : getLinkColor(link))
         .linkColor(getLinkColor)
         .linkOpacity(0.8)
         .linkCurvature(link => link.curvature || 0)
         .linkCurveRotation(link => link.rotation || 0)
-        .nodeLabel(getNodeLabel)
+        .nodeLabel(node => {
+          const fileName = node.img.split('/').pop().split('.')[0];
+          let communityInfo = '';
+          
+          if (currentCommunityView !== 'none') {
+            const communityData = communities[currentCommunityView];
+            if (communityData) {
+              for (const [name, nodeList] of Object.entries(communityData)) {
+                if (nodeList.includes(node.id)) {
+                  communityInfo = `<br><small>${name.replace('_', ' ')}</small>`;
+                  break;
+                }
+              }
+            }
+          }
+          
+          return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: #c2d4d0; font-size: 12px; font-weight: 500;">${fileName}${communityInfo}</div>`;
+        })
         .onNodeHover(node => {
           if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return;
 
@@ -818,56 +777,27 @@
           Graph.cameraPosition(newPos, node, 2000);
         })
         .onEngineStop(() => {
-          // Graph is ready - no loading indicator to hide
+          // Graph is ready but breathing starts off by default
         });
 
       Graph.controls().enableDamping = true;
       Graph.controls().dampingFactor = 0.05;
-      Graph.controls().autoRotate = false;
-      Graph.controls().autoRotateSpeed = 0.5;
     }
 
-    function updateHighlight() {
-      // Update sprite colors for highlighting
-      nodeSprites.forEach((sprite, nodeId) => {
-        const node = nodes.find(n => n.id === nodeId);
-        const color = getNodeColor(node);
-        
-        if (sprite && sprite.material) {
-          sprite.material.color.set(color);
-          sprite.material.needsUpdate = true;
-        }
-      });
-
-      Graph
-        .linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
-        .linkDirectionalParticles(link => highlightLinks.has(link) ? 3 : 0)
-        .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#7ED377' : getLinkColor(link))
-        .linkDirectionalArrowLength(link => highlightLinks.has(link) ? hoverArrowLength : baseArrowLength)
-        .linkColor(getLinkColor);
-    }
-
+    // UI Event handlers
     function updateCommunityView() {
-      // Update all sprites with the current color
       nodeSprites.forEach((sprite, nodeId) => {
         const node = nodes.find(n => n.id === nodeId);
         const color = getNodeColor(node);
-        
-        if (sprite && sprite.material) {
+        if (sprite?.material) {
           sprite.material.color.set(color);
           sprite.material.needsUpdate = true;
         }
       });
 
-      Graph
-        .linkColor(getLinkColor)
-        .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#8FA68E' : getLinkColor(link))
-        .nodeLabel(getNodeLabel);
+      Graph.linkColor(getLinkColor);
       
-      updateLegend();
-    }
-
-    function updateLegend() {
+      // Update legend
       const legend = document.getElementById('legend');
       const legendItems = document.getElementById('legend-items');
       
@@ -879,21 +809,21 @@
       legend.classList.add('visible');
       legendItems.innerHTML = '';
       
-      const communities = communityDefinitions[currentCommunityView];
-      const colors = colorSchemes[currentCommunityView];
+      const communityData = communities[currentCommunityView];
+      const colorData = colors[currentCommunityView];
       
-      if (communities && colors) {
-        Object.entries(communities).forEach(([communityName, nodeList]) => {
+      if (communityData && colorData) {
+        Object.entries(communityData).forEach(([name, nodeList]) => {
           const item = document.createElement('div');
           item.className = 'legend-item';
           
           const colorBox = document.createElement('div');
           colorBox.className = 'legend-color';
-          colorBox.style.backgroundColor = colors[communityName];
+          colorBox.style.backgroundColor = colorData[name];
           
           const label = document.createElement('span');
           label.className = 'legend-label';
-          label.textContent = communityName.replace('_', ' ');
+          label.textContent = name.replace('_', ' ');
           
           item.appendChild(colorBox);
           item.appendChild(label);
@@ -902,25 +832,32 @@
       }
     }
 
-    // Enhanced menu toggle
-    const toggleBtn = document.getElementById('toggle-btn');
-    const menu = document.getElementById('menu');
-    let isMenuOpen = true;
-
-    toggleBtn.addEventListener('click', () => {
-      isMenuOpen = !isMenuOpen;
-      menu.classList.toggle('closed', !isMenuOpen);
-      toggleBtn.textContent = isMenuOpen ? '×' : '☰';
-      toggleBtn.setAttribute('aria-expanded', isMenuOpen);
+    // Event listeners
+    document.getElementById('toggle-btn').addEventListener('click', () => {
+      const menu = document.getElementById('menu');
+      const isOpen = !menu.classList.contains('closed');
+      menu.classList.toggle('closed', isOpen);
+      document.getElementById('toggle-btn').textContent = isOpen ? '☰' : '×';
     });
 
-    // Community view selector
     document.getElementById('community-select').addEventListener('change', (e) => {
       currentCommunityView = e.target.value;
       updateCommunityView();
     });
 
-    // Enhanced copy functionality
+    document.getElementById('breathing-toggle').addEventListener('click', () => {
+      const toggle = document.getElementById('breathing-toggle');
+      if (isBreathing) {
+        stopBreathing();
+        isBreathing = false;
+        toggle.classList.remove('active');
+      } else {
+        isBreathing = true;
+        startBreathing();
+        toggle.classList.add('active');
+      }
+    });
+
     document.getElementById('copy-btn').addEventListener('click', async () => {
       try {
         const text = '[\n' + adjacencyMatrix.map(row => '  [' + row.join(', ') + ']').join(',\n') + '\n]';
@@ -928,46 +865,34 @@
         
         const confirm = document.getElementById('copy-confirmation');
         confirm.classList.add('visible');
-        
-        setTimeout(() => {
-          confirm.classList.remove('visible');
-        }, 2000);
+        setTimeout(() => confirm.classList.remove('visible'), 2000);
       } catch (err) {
-        console.error('Copy failed:', err);
         const textArea = document.createElement('textarea');
         textArea.value = '[\n' + adjacencyMatrix.map(row => '  [' + row.join(', ') + ']').join(',\n') + '\n]';
         document.body.appendChild(textArea);
         textArea.select();
-        try {
-          document.execCommand('copy');
-          const confirm = document.getElementById('copy-confirmation');
-          confirm.classList.add('visible');
-          setTimeout(() => confirm.classList.remove('visible'), 2000);
-        } catch (fallbackErr) {
-          alert('Copy failed. Please try selecting the text manually.');
-        }
+        document.execCommand('copy');
         document.body.removeChild(textArea);
+        
+        const confirm = document.getElementById('copy-confirmation');
+        confirm.classList.add('visible');
+        setTimeout(() => confirm.classList.remove('visible'), 2000);
       }
     });
 
-    // Initialize on load
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const menu = document.getElementById('menu');
+        if (menu.classList.contains('closed')) {
+          document.getElementById('toggle-btn').click();
+        }
+      }
+    });
+
+    // Initialize
     window.addEventListener('load', () => {
-      // Remove the fallback timeout and start immediately
       setTimeout(initGraph, 100);
     });
-
-    // Add keyboard navigation
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !isMenuOpen) {
-        toggleBtn.click();
-      }
-    });
-
-    // Performance optimization for mobile
-    if (window.innerWidth <= 768) {
-      baseArrowLength = 6;
-      hoverArrowLength = 8;
-    }
   </script>
 </body>
 </html>
