@@ -58,7 +58,8 @@
 
     #menu.closed #title-container,
     #menu.closed #subtitle,
-    #menu.closed #nav-box {
+    #menu.closed #nav-box,
+    #menu.closed #community-section {
       display: none;
     }
 
@@ -115,6 +116,51 @@
       color: #1a2a2e;
       transform: translateX(2px);
     }
+    
+    /* Community section */
+    #community-section {
+      background: rgba(100, 140, 130, 0.06);
+      border: 1px solid rgba(100, 140, 130, 0.12);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    #community-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+      color: #c2d4d0;
+    }
+
+    #community-select {
+      width: 100%;
+      background: rgba(50, 70, 80, 0.8);
+      border: 1px solid rgba(100, 140, 130, 0.2);
+      border-radius: 8px;
+      color: #c2d4d0;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    #community-select:hover {
+      background: rgba(70, 90, 100, 0.8);
+      border-color: rgba(100, 140, 130, 0.4);
+    }
+
+    #community-select:focus {
+      outline: 2px solid #7db8a8;
+      outline-offset: 2px;
+    }
+
+    #community-select option {
+      background: #1a2a2e;
+      color: #c2d4d0;
+    }
+
 
     #title-vertical {
       display: none;
@@ -234,6 +280,56 @@
       z-index: 1;
       pointer-events: none;
     }
+    
+    /* Legend */
+    #legend {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(20, 30, 40, 0.90);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(100, 140, 130, 0.15);
+      border-radius: 12px;
+      padding: 16px 20px;
+      z-index: 99;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      max-width: 200px;
+      display: none;
+    }
+
+    #legend.visible {
+      display: block;
+    }
+
+    #legend-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+      color: #c2d4d0;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid rgba(100, 140, 130, 0.2);
+    }
+
+    .legend-label {
+      color: #c2d4d0;
+      font-weight: 500;
+      text-transform: capitalize;
+    }
+
 
     /* Breathing toggle button */
     #breathing-toggle {
@@ -331,6 +427,14 @@
         <li><a href="https://phileasdg.github.io/sympoietic/artists.html">About</a></li>
       </ul>
     </div>
+    <div id="community-section">
+        <h3 id="community-title">Community View</h3>
+        <select id="community-select">
+          <option value="none">Default View</option>
+          <option value="author">By Author</option>
+          <option value="phase">By Project Phase</option>
+        </select>
+    </div>
     <div id="buttons-container">
       <button id="toggle-btn" aria-label="Toggle menu">×</button>
       <button id="copy-btn">📋 Copy network<br>adjacency matrix</button>
@@ -338,7 +442,11 @@
   </nav>
 
   <div id="copy-confirmation" role="alert" aria-live="polite">Copied!</div>
-  <div id="breathing-toggle" title="Toggle organism breathing" aria-label="Toggle breathing animation">
+  <div id="legend">
+    <h4 id="legend-title">Communities</h4>
+    <div id="legend-items"></div>
+  </div>
+  <div id="breathing-toggle" title="Toggle organism breathing" aria-label="Toggle breathing animation" class="active">
     💨
   </div>
   <div id="3d-graph"></div>
@@ -352,12 +460,29 @@
     let nodes = [];
     let links = [];
     let adjacencyMatrix = [];
-    let isBreathing = false;
+    let communities = {};
+    let colors = {};
+    let currentCommunityView = 'none';
+    let isBreathing = true; // On by default
+    let isEngineSettled = false;
     let breathingInterval = null;
     let hoverNode = null;
     const highlightNodes = new Set();
     const highlightLinks = new Set();
     const nodeSprites = new Map();
+    const proximityThreshold = 100; // Distance to trigger high-res load
+    const thumbnailTextures = new Map();
+    const highresTextures = new Map();
+
+    // Helper to generate a color palette
+    function generateColorPalette(keys) {
+        const palette = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#F1948A"];
+        const colorMap = {};
+        keys.forEach((key, index) => {
+            colorMap[key] = palette[index % palette.length];
+        });
+        return colorMap;
+    }
 
     // Fetches and processes graph data from JSON files
     async function loadAndProcessGraphData() {
@@ -373,21 +498,48 @@
 
             const verticesMap = await verticesRes.json();
             const edgesList = await edgesRes.json();
+            
+            const tempCommunities = { author: {}, phase: {} };
+            const uniqueAuthors = new Set();
+            const uniquePhases = new Set();
 
             // Build graph data
-            const localNodes = Object.entries(verticesMap).map(([id, filename]) => ({
-                id: parseInt(id, 10),
-                img: `${filename}.jpeg`,
-                neighbors: [],
-                links: []
-            }));
+            const localNodes = Object.entries(verticesMap).map(([id, filename]) => {
+                const parts = filename.split('-');
+                const phase = `Phase ${parts[0]}`;
+                const author = (parts[1] || 'Unknown').replace(/_/g, ' ');
+
+                uniqueAuthors.add(author);
+                uniquePhases.add(phase);
+
+                if (!tempCommunities.author[author]) tempCommunities.author[author] = [];
+                tempCommunities.author[author].push(parseInt(id, 10));
+
+                if (!tempCommunities.phase[phase]) tempCommunities.phase[phase] = [];
+                tempCommunities.phase[phase].push(parseInt(id, 10));
+
+                return {
+                    id: parseInt(id, 10),
+                    img: `${filename}.jpeg`,
+                    author,
+                    phase,
+                    neighbors: [],
+                    links: [],
+                    textureState: 'thumbnail'
+                };
+            });
+            
+            const tempColors = {
+                author: generateColorPalette(Array.from(uniqueAuthors)),
+                phase: generateColorPalette(Array.from(uniquePhases).sort())
+            };
+
 
             const localLinks = edgesList.map(([source, target]) => ({
                 source: parseInt(source, 10),
                 target: parseInt(target, 10)
             }));
             
-            // Create a set of stringified edges for quick curvature calculation
             const edgeSet = new Set(edgesList.map(([s, t]) => `${s},${t}`));
 
             localLinks.forEach(link => {
@@ -401,7 +553,6 @@
                 }
             });
 
-            // Populate neighbors and links for highlighting logic
             const nodeMap = new Map(localNodes.map(node => [node.id, node]));
             localLinks.forEach(link => {
                 const a = nodeMap.get(link.source);
@@ -414,18 +565,22 @@
                 }
             });
 
-            // Generate adjacency matrix for copy functionality
             const nodeIds = localNodes.map(n => n.id);
             const maxId = Math.max(0, ...nodeIds);
-            const localAdjacencyMatrix = Array(maxId).fill(0).map(() => Array(maxId).fill(0));
+            const localAdjacencyMatrix = Array(maxId + 1).fill(0).map(() => Array(maxId + 1).fill(0));
             edgesList.forEach(([source, target]) => {
-                // Adjacency matrix is 1-based, array is 0-based
-                if (source > 0 && source <= maxId && target > 0 && target <= maxId) {
-                    localAdjacencyMatrix[source - 1][target - 1] = 1;
+                if (source <= maxId && target <= maxId) {
+                    localAdjacencyMatrix[source][target] = 1;
                 }
             });
-
-            return { nodes: localNodes, links: localLinks, adjacencyMatrix: localAdjacencyMatrix };
+            
+            return { 
+                nodes: localNodes, 
+                links: localLinks, 
+                adjacencyMatrix: localAdjacencyMatrix,
+                communities: tempCommunities,
+                colors: tempColors
+            };
         } catch (error) {
             console.error("Error loading graph:", error);
             document.getElementById('3d-graph').innerHTML = `<div style="color: #ff6b6b; padding: 40px; text-align: center; font-size: 1.2rem;"><h2>Failed to Load Organism</h2><p>${error.message}</p><p>Please check the console for more details.</p></div>`;
@@ -438,11 +593,41 @@
       if (highlightNodes.has(node)) {
         return node === hoverNode ? '#A8E6A3' : '#C8F4C3';
       }
+      
+      if (currentCommunityView === 'none') return '#ffffff';
+      
+      const communityData = communities[currentCommunityView];
+      const colorData = colors[currentCommunityView];
+      
+      if (communityData && colorData) {
+        const key = node[currentCommunityView];
+        if (key && colorData[key]) {
+            return colorData[key];
+        }
+      }
+      
       return '#ffffff';
     }
 
     function getLinkColor(link) {
-      if (highlightLinks.has(link)) return '#7ED377';
+        if (highlightLinks.has(link)) return '#7ED377';
+        if (currentCommunityView === 'none' || !link.source.id || !link.target.id) return '#7db8a8';
+
+        const communityData = communities[currentCommunityView];
+        const colorData = colors[currentCommunityView];
+        
+        const sourceNode = nodes.find(n => n.id === link.source.id);
+        const targetNode = nodes.find(n => n.id === link.target.id);
+        
+        if (sourceNode && targetNode && communityData && colorData) {
+            const sourceCommunity = sourceNode[currentCommunityView];
+            const targetCommunity = targetNode[currentCommunityView];
+            
+            if (sourceCommunity && targetCommunity) {
+                return sourceCommunity === targetCommunity ? colorData[sourceCommunity] : '#FFA726'; // Orange for inter-community links
+            }
+        }
+      
       return '#7db8a8';
     }
 
@@ -466,35 +651,30 @@
 
     // Breathing system
     function startBreathing() {
-      if (breathingInterval) return;
+      if (breathingInterval || !isEngineSettled) return;
       
       let phase = 0;
-      const nodeData = new Map();
       
-      nodeSprites.forEach((sprite, nodeId) => {
-        const node = nodes.find(n => n.id === nodeId);
-        if (node && sprite) {
-          const connectionCount = node.neighbors.length;
-          const wavePhase = (nodeId * 0.8 + connectionCount * 0.3) * Math.PI / 4;
-          nodeData.set(nodeId, { sprite, wavePhase });
-        }
-      });
-
       breathingInterval = setInterval(() => {
-        phase += 0.015;
-        
-        nodeData.forEach(({ sprite, wavePhase }) => {
-          const nodePhase = phase + wavePhase;
-          const scale = 22 * (1 + 0.25 * Math.sin(nodePhase));
-          sprite.scale.setScalar(scale);
+        phase += 0.02; // Adjust speed of the breathing cycle
+
+        nodes.forEach(node => {
+            if (!node.__threeObj) return;
+            
+            // Apply a noticeable scaling effect, timed with the breathing
+            const scalePhase = phase + (node.id * 0.5); // Offset phase per node
+            const scale = 25 * (1 + 0.4 * Math.sin(scalePhase)); // More pronounced scale variation
+            node.__threeObj.scale.setScalar(scale);
         });
 
-        const linkOpacity = 0.65 + 0.2 * (
-          Math.sin(phase * 0.8) * 0.3 + 
-          Math.sin(phase * 1.2) * 0.4 + 
-          Math.sin(phase * 0.6) * 0.3
-        );
-        Graph.linkOpacity(Math.max(0.4, Math.min(0.9, linkOpacity)));
+        // Fluctuate link width and opacity to create a "pulsing" or "breathing" effect through the connections.
+        const pulseFactor = 1 + 0.9 * Math.sin(phase * 1.5); // More pronounced variation (0.1 to 1.9)
+        Graph.linkWidth(link => (highlightLinks.has(link) ? 3 : 1.5) * pulseFactor);
+
+        // Fluctuate link opacity with a slight phase shift from the width pulse for a more dynamic feel
+        const linkOpacity = 0.65 + 0.2 * Math.sin(phase * 1.5 + Math.PI / 2);
+        Graph.linkOpacity(Math.max(0.35, Math.min(0.85, linkOpacity)));
+
       }, 40);
     }
 
@@ -504,12 +684,79 @@
         breathingInterval = null;
       }
       
-      nodeSprites.forEach(sprite => {
-        if (sprite) sprite.scale.setScalar(22);
+      // Reset nodes scale
+      nodes.forEach(node => {
+          if (node.__threeObj) {
+              node.__threeObj.scale.setScalar(22);
+          }
       });
       
       Graph.linkOpacity(0.8);
+      updateHighlight(); // Resets link widths and other properties based on the current hover state.
     }
+    
+    // Dynamic Texture Loading System
+    function manageDynamicTextures() {
+        if (!Graph || !Graph.camera()) return;
+
+        const cameraPosition = Graph.camera().position;
+
+        nodes.forEach(node => {
+            if (!node.__threeObj) return;
+
+            const nodePosition = node.__threeObj.position;
+            const distance = cameraPosition.distanceTo(nodePosition);
+
+            if (distance < proximityThreshold) {
+                if (node.textureState === 'thumbnail') {
+                    node.textureState = 'loading_highres';
+
+                    const highResUrl = `./art-imgs/${node.img}`;
+                    new THREE.TextureLoader().load(
+                        highResUrl,
+                        (highResTexture) => {
+                            highResTexture.colorSpace = THREE.SRGBColorSpace;
+                            if (node.__threeObj) {
+                                node.__threeObj.material.map = highResTexture;
+                                highresTextures.set(node.id, highResTexture);
+                                node.textureState = 'highres';
+                            } else {
+                               highResTexture.dispose();
+                            }
+                        },
+                        undefined,
+                        (error) => {
+                            console.error(`Failed to load high-res image for node ${node.id}: ${highResUrl}`, error);
+                            node.textureState = 'thumbnail';
+                        }
+                    );
+                }
+            } else {
+                if (node.textureState === 'highres') {
+                    const thumbnailTexture = thumbnailTextures.get(node.id);
+                    if (thumbnailTexture && node.__threeObj) {
+                        node.__threeObj.material.map = thumbnailTexture;
+                    }
+
+                    const highResTexture = highresTextures.get(node.id);
+                    if (highResTexture) {
+                        highResTexture.dispose();
+                        highresTextures.delete(node.id);
+                    }
+                    node.textureState = 'thumbnail';
+                }
+            }
+        });
+    }
+
+    function startTextureManagementLoop() {
+        function animate() {
+            manageDynamicTextures();
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
 
     // Initialize graph
     function initGraph() {
@@ -519,23 +766,24 @@
         .nodeThreeObject(node => {
           const texture = new THREE.TextureLoader().load(
             `./art-thumbnails/${node.img}`,
-            (texture) => { // Success
+            (texture) => {
               texture.colorSpace = THREE.SRGBColorSpace;
+              thumbnailTextures.set(node.id, texture);
               const sprite = nodeSprites.get(node.id);
               if (sprite?.material) {
                 sprite.material.color.set(getNodeColor(node));
                 sprite.material.needsUpdate = true;
               }
             },
-            undefined, // Progress
-            (error) => { // Error
+            undefined,
+            (error) => {
               console.error(`Image failed for node ${node.id} (${node.img}):`, error);
               const sprite = nodeSprites.get(node.id);
               if (sprite) {
                 const canvas = document.createElement('canvas');
                 canvas.width = 64; canvas.height = 64;
                 const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#FF6B6B'; // Error color
+                ctx.fillStyle = '#FF6B6B';
                 ctx.fillRect(0, 0, 64, 64);
                 sprite.material.map = new THREE.CanvasTexture(canvas);
                 sprite.material.needsUpdate = true;
@@ -565,7 +813,11 @@
         .linkCurveRotation(link => link.rotation || 0)
         .nodeLabel(node => {
           const fileName = node.img.split('/').pop().split('.')[0];
-          return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: #c2d4d0; font-size: 12px; font-weight: 500;">${fileName}</div>`;
+          let communityInfo = '';
+          if (currentCommunityView !== 'none') {
+              communityInfo = `<br><small style="text-transform: capitalize;">${node[currentCommunityView]}</small>`;
+          }
+          return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: #c2d4d0; font-size: 12px; font-weight: 500;">${fileName}${communityInfo}</div>`;
         })
         .onNodeHover(node => {
           if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return;
@@ -604,11 +856,72 @@
             z: node.z * distRatio
           };
           Graph.cameraPosition(newPos, node, 2000);
+        })
+        .onEngineStop(() => {
+            console.log("Force engine stopped. Capturing natural positions.");
+            nodes.forEach(node => {
+                node.naturalX = node.x;
+                node.naturalY = node.y;
+                node.naturalZ = node.z;
+            });
+            isEngineSettled = true;
+
+            if (isBreathing) {
+                startBreathing();
+            }
         });
 
       Graph.controls().enableDamping = true;
       Graph.controls().dampingFactor = 0.05;
     }
+    
+    // UI Event handlers
+    function updateCommunityView() {
+      nodeSprites.forEach((sprite, nodeId) => {
+        const node = nodes.find(n => n.id === nodeId);
+        const color = getNodeColor(node);
+        if (sprite?.material) {
+          sprite.material.color.set(color);
+          sprite.material.needsUpdate = true;
+        }
+      });
+
+      Graph.linkColor(getLinkColor);
+      
+      // Update legend
+      const legend = document.getElementById('legend');
+      const legendItems = document.getElementById('legend-items');
+      
+      if (currentCommunityView === 'none') {
+        legend.classList.remove('visible');
+        return;
+      }
+      
+      legend.classList.add('visible');
+      legendItems.innerHTML = '';
+      
+      const colorData = colors[currentCommunityView];
+      
+      if (colorData) {
+        Object.entries(colorData).forEach(([name, color]) => {
+          const item = document.createElement('div');
+          item.className = 'legend-item';
+          
+          const colorBox = document.createElement('div');
+          colorBox.className = 'legend-color';
+          colorBox.style.backgroundColor = color;
+          
+          const label = document.createElement('span');
+          label.className = 'legend-label';
+          label.textContent = name;
+          
+          item.appendChild(colorBox);
+          item.appendChild(label);
+          legendItems.appendChild(item);
+        });
+      }
+    }
+
 
     // Event listeners
     document.getElementById('toggle-btn').addEventListener('click', () => {
@@ -618,9 +931,14 @@
       document.getElementById('toggle-btn').textContent = isOpen ? '☰' : '×';
     });
 
+    document.getElementById('community-select').addEventListener('change', (e) => {
+        currentCommunityView = e.target.value;
+        updateCommunityView();
+    });
+
     document.getElementById('breathing-toggle').addEventListener('click', () => {
       const toggle = document.getElementById('breathing-toggle');
-      isBreathing = !isBreathing;
+      isBreathing = !isBreathing; // Toggle the state
       if (isBreathing) {
         startBreathing();
         toggle.classList.add('active');
@@ -635,7 +953,6 @@
       try {
         await navigator.clipboard.writeText(text);
       } catch (err) {
-        // Fallback for older browsers or insecure contexts
         const textArea = document.createElement('textarea');
         textArea.value = text;
         textArea.style.position = 'fixed';
@@ -666,7 +983,10 @@
             nodes = graphData.nodes;
             links = graphData.links;
             adjacencyMatrix = graphData.adjacencyMatrix;
+            communities = graphData.communities;
+            colors = graphData.colors;
             initGraph();
+            startTextureManagementLoop();
         }
     }
 
