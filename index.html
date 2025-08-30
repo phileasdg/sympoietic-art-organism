@@ -58,8 +58,7 @@
 
     #menu.closed #title-container,
     #menu.closed #subtitle,
-    #menu.closed #nav-box,
-    #menu.closed #community-section {
+    #menu.closed #nav-box {
       display: none;
     }
 
@@ -115,50 +114,6 @@
       background: #7db8a8;
       color: #1a2a2e;
       transform: translateX(2px);
-    }
-
-    /* Community section */
-    #community-section {
-      background: rgba(100, 140, 130, 0.06);
-      border: 1px solid rgba(100, 140, 130, 0.12);
-      border-radius: 8px;
-      padding: 16px;
-    }
-
-    #community-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 0 0 12px 0;
-      color: #c2d4d0;
-    }
-
-    #community-select {
-      width: 100%;
-      background: rgba(50, 70, 80, 0.8);
-      border: 1px solid rgba(100, 140, 130, 0.2);
-      border-radius: 8px;
-      color: #c2d4d0;
-      padding: 12px 16px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    #community-select:hover {
-      background: rgba(70, 90, 100, 0.8);
-      border-color: rgba(100, 140, 130, 0.4);
-    }
-
-    #community-select:focus {
-      outline: 2px solid #7db8a8;
-      outline-offset: 2px;
-    }
-
-    #community-select option {
-      background: #1a2a2e;
-      color: #c2d4d0;
     }
 
     #title-vertical {
@@ -275,58 +230,9 @@
     #graph-overlay {
       position: fixed;
       inset: 0;
-      background: 
-        radial-gradient(ellipse at center, rgba(0,0,0,0) 50%, rgba(15, 20, 25, 0.6) 100%);
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0) 50%, rgba(15, 20, 25, 0.6) 100%);
       z-index: 1;
       pointer-events: none;
-    }
-
-    /* Legend */
-    #legend {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(20, 30, 40, 0.90);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(100, 140, 130, 0.15);
-      border-radius: 12px;
-      padding: 16px 20px;
-      z-index: 99;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
-      max-width: 200px;
-      display: none;
-    }
-
-    #legend.visible {
-      display: block;
-    }
-
-    #legend-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0 0 12px 0;
-      color: #c2d4d0;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-      font-size: 0.85rem;
-    }
-
-    .legend-color {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 1px solid rgba(100, 140, 130, 0.2);
-    }
-
-    .legend-label {
-      color: #c2d4d0;
-      font-weight: 500;
     }
 
     /* Breathing toggle button */
@@ -370,7 +276,7 @@
     /* Responsive improvements */
     @media (max-width: 768px) {
       #menu {
-        width: calc(100vw - 40px);
+        width: calc(100vw - 32px);
         padding: 16px 20px;
         top: 16px;
         left: 16px;
@@ -425,16 +331,6 @@
         <li><a href="https://phileasdg.github.io/sympoietic/artists.html">About</a></li>
       </ul>
     </div>
-    <div id="community-section">
-      <h3 id="community-title">Community View</h3>
-      <select id="community-select">
-        <option value="none">Default View</option>
-        <option value="artists">By Artist</option>
-        <option value="artMedium">By Art Medium</option>
-        <option value="timeCreated">By Time Created</option>
-        <option value="connectionLevel">By Connection Level</option>
-      </select>
-    </div>
     <div id="buttons-container">
       <button id="toggle-btn" aria-label="Toggle menu">×</button>
       <button id="copy-btn">📋 Copy network<br>adjacency matrix</button>
@@ -442,10 +338,6 @@
   </nav>
 
   <div id="copy-confirmation" role="alert" aria-live="polite">Copied!</div>
-  <div id="legend">
-    <h4 id="legend-title">Communities</h4>
-    <div id="legend-items"></div>
-  </div>
   <div id="breathing-toggle" title="Toggle organism breathing" aria-label="Toggle breathing animation">
     💨
   </div>
@@ -455,102 +347,90 @@
   <script type="module">
     import * as THREE from 'https://esm.sh/three';
 
-    // Data
-    const adjacencyMatrix = [
-      [0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,1,1,0,1,1,1,1,1,1,0,0,0,0,0,0],
-      [0,0,0,1,0,0,1,0,0,1,0,1,1,1,0,0,0],
-      [0,0,0,0,1,0,1,1,0,0,1,0,0,0,1,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,1,1,1,0,0,1,0,1,1,1],
-      [0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0],
-      [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    ];
-
-    const imgs = [
-      '0-Emerson_Paquette-1.png', '0-Emerson_Paquette-2.jpeg', '0-Emerson_Paquette-3.jpeg',
-      '0-Emerson_Paquette-4.jpeg', '0-Emerson_Paquette-5.jpeg', '0-Emerson_Paquette-6.jpeg',
-      '0-Emerson_Paquette-7.jpeg', '0-Phileas_Dazeley_Gaist-1.png', '0-Phileas_Dazeley_Gaist-2.png',
-      '0-Phileas_Dazeley_Gaist-3.png', '0-Phileas_Dazeley_Gaist-4.png', '0-Phileas_Dazeley_Gaist-5.png',
-      '0-Phileas_Dazeley_Gaist-6.png', '0-Phileas_Dazeley_Gaist-7.png', '0-Phileas_Dazeley_Gaist-8.png',
-      '0-Phileas_Dazeley_Gaist-9.png', '0-Phileas_Dazeley_Gaist-10.png'
-    ];
-
-    // Community definitions
-    const communities = {
-      artists: {
-        "emerson": [0, 1, 2, 3, 4, 5, 6],
-        "phileas": [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-      },
-      artMedium: {
-        "photography": [0, 2, 7, 9, 12],
-        "digital": [1, 3, 8, 10, 14, 15],
-        "mixed": [4, 5, 6, 11, 13, 16]
-      },
-      timeCreated: {
-        "early": [0, 1, 7, 8],
-        "middle": [2, 3, 4, 9, 10, 11],
-        "recent": [5, 6, 12, 13, 14, 15, 16]
-      },
-      connectionLevel: {
-        "highly_connected": [1, 2, 6, 9],
-        "moderately_connected": [0, 3, 7, 10, 15],
-        "lightly_connected": [4, 5, 8, 11, 12, 13, 14, 16]
-      }
-    };
-
-    const colors = {
-      artists: { "emerson": "#FF6B6B", "phileas": "#4ECDC4" },
-      artMedium: { "photography": "#FF6B6B", "digital": "#4ECDC4", "mixed": "#FFA726" },
-      timeCreated: { "early": "#9C27B0", "middle": "#2196F3", "recent": "#4CAF50" },
-      connectionLevel: { "highly_connected": "#F44336", "moderately_connected": "#FF9800", "lightly_connected": "#8BC34A" }
-    };
-
     // State
     let Graph;
-    let currentCommunityView = 'none';
-    let isBreathing = false; // Start with breathing off by default
+    let nodes = [];
+    let links = [];
+    let adjacencyMatrix = [];
+    let isBreathing = false;
     let breathingInterval = null;
     let hoverNode = null;
     const highlightNodes = new Set();
     const highlightLinks = new Set();
     const nodeSprites = new Map();
 
-    // Build graph data
-    const nodes = imgs.map((img, id) => ({ id, img, neighbors: [], links: [] }));
-    const links = [];
-    
-    for (let i = 0; i < adjacencyMatrix.length; i++) {
-      for (let j = 0; j < adjacencyMatrix[i].length; j++) {
-        if (adjacencyMatrix[i][j]) {
-          const link = { source: i, target: j };
-          
-          // Calculate curvature for bidirectional links
-          const revExists = adjacencyMatrix[j] && adjacencyMatrix[j][i];
-          if (revExists) {
-            link.curvature = i < j ? 0.4 : -0.4;
-            link.rotation = i < j ? 0 : Math.PI / 2;
-          } else {
-            link.curvature = 0;
-            link.rotation = 0;
-          }
-          
-          links.push(link);
-          nodes[i].neighbors.push(nodes[j]);
-          nodes[j].neighbors.push(nodes[i]);
-          nodes[i].links.push(link);
-          nodes[j].links.push(link);
+    // Fetches and processes graph data from JSON files
+    async function loadAndProcessGraphData() {
+        try {
+            const [verticesRes, edgesRes] = await Promise.all([
+                fetch('./graph/vertices.json'),
+                fetch('./graph/edges.json')
+            ]);
+
+            if (!verticesRes.ok || !edgesRes.ok) {
+                throw new Error(`Failed to load graph data files. Status: Vertices ${verticesRes.status}, Edges ${edgesRes.status}`);
+            }
+
+            const verticesMap = await verticesRes.json();
+            const edgesList = await edgesRes.json();
+
+            // Build graph data
+            const localNodes = Object.entries(verticesMap).map(([id, filename]) => ({
+                id: parseInt(id, 10),
+                img: `${filename}.jpeg`,
+                neighbors: [],
+                links: []
+            }));
+
+            const localLinks = edgesList.map(([source, target]) => ({
+                source: parseInt(source, 10),
+                target: parseInt(target, 10)
+            }));
+            
+            // Create a set of stringified edges for quick curvature calculation
+            const edgeSet = new Set(edgesList.map(([s, t]) => `${s},${t}`));
+
+            localLinks.forEach(link => {
+                const revLinkExists = edgeSet.has(`${link.target},${link.source}`);
+                if (revLinkExists) {
+                    link.curvature = link.source < link.target ? 0.4 : -0.4;
+                    link.rotation = link.source < link.target ? 0 : Math.PI / 2;
+                } else {
+                    link.curvature = 0;
+                    link.rotation = 0;
+                }
+            });
+
+            // Populate neighbors and links for highlighting logic
+            const nodeMap = new Map(localNodes.map(node => [node.id, node]));
+            localLinks.forEach(link => {
+                const a = nodeMap.get(link.source);
+                const b = nodeMap.get(link.target);
+                if (a && b) {
+                    a.neighbors.push(b);
+                    b.neighbors.push(a);
+                    a.links.push(link);
+                    b.links.push(link);
+                }
+            });
+
+            // Generate adjacency matrix for copy functionality
+            const nodeIds = localNodes.map(n => n.id);
+            const maxId = Math.max(0, ...nodeIds);
+            const localAdjacencyMatrix = Array(maxId).fill(0).map(() => Array(maxId).fill(0));
+            edgesList.forEach(([source, target]) => {
+                // Adjacency matrix is 1-based, array is 0-based
+                if (source > 0 && source <= maxId && target > 0 && target <= maxId) {
+                    localAdjacencyMatrix[source - 1][target - 1] = 1;
+                }
+            });
+
+            return { nodes: localNodes, links: localLinks, adjacencyMatrix: localAdjacencyMatrix };
+        } catch (error) {
+            console.error("Error loading graph:", error);
+            document.getElementById('3d-graph').innerHTML = `<div style="color: #ff6b6b; padding: 40px; text-align: center; font-size: 1.2rem;"><h2>Failed to Load Organism</h2><p>${error.message}</p><p>Please check the console for more details.</p></div>`;
+            return null;
         }
-      }
     }
 
     // Helper functions
@@ -558,42 +438,11 @@
       if (highlightNodes.has(node)) {
         return node === hoverNode ? '#A8E6A3' : '#C8F4C3';
       }
-      
-      if (currentCommunityView === 'none') return '#ffffff';
-      
-      const communityData = communities[currentCommunityView];
-      const colorData = colors[currentCommunityView];
-      
-      if (communityData && colorData) {
-        for (const [name, nodeList] of Object.entries(communityData)) {
-          if (nodeList.includes(node.id)) return colorData[name];
-        }
-      }
-      
       return '#ffffff';
     }
 
     function getLinkColor(link) {
       if (highlightLinks.has(link)) return '#7ED377';
-      if (currentCommunityView === 'none') return '#7db8a8';
-      
-      const communityData = communities[currentCommunityView];
-      const colorData = colors[currentCommunityView];
-      
-      if (communityData && colorData) {
-        let sourceCommunity = null;
-        let targetCommunity = null;
-        
-        for (const [name, nodeList] of Object.entries(communityData)) {
-          if (nodeList.includes(link.source)) sourceCommunity = name;
-          if (nodeList.includes(link.target)) targetCommunity = name;
-        }
-        
-        if (sourceCommunity && targetCommunity) {
-          return sourceCommunity === targetCommunity ? colorData[sourceCommunity] : '#FFA726';
-        }
-      }
-      
       return '#7db8a8';
     }
 
@@ -670,8 +519,7 @@
         .nodeThreeObject(node => {
           const texture = new THREE.TextureLoader().load(
             `./art-thumbnails/${node.img}`,
-            // Success callback
-            (texture) => {
+            (texture) => { // Success
               texture.colorSpace = THREE.SRGBColorSpace;
               const sprite = nodeSprites.get(node.id);
               if (sprite?.material) {
@@ -679,22 +527,17 @@
                 sprite.material.needsUpdate = true;
               }
             },
-            // Progress callback
-            undefined,
-            // Error callback - create colored fallback
-            (error) => {
-              console.log(`Image failed for node ${node.id}, using colored fallback`);
-              const canvas = document.createElement('canvas');
-              canvas.width = 64;
-              canvas.height = 64;
-              const ctx = canvas.getContext('2d');
-              ctx.fillStyle = getNodeColor(node);
-              ctx.fillRect(0, 0, 64, 64);
-              
-              const colorTexture = new THREE.CanvasTexture(canvas);
+            undefined, // Progress
+            (error) => { // Error
+              console.error(`Image failed for node ${node.id} (${node.img}):`, error);
               const sprite = nodeSprites.get(node.id);
               if (sprite) {
-                sprite.material.map = colorTexture;
+                const canvas = document.createElement('canvas');
+                canvas.width = 64; canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#FF6B6B'; // Error color
+                ctx.fillRect(0, 0, 64, 64);
+                sprite.material.map = new THREE.CanvasTexture(canvas);
                 sprite.material.needsUpdate = true;
               }
             }
@@ -722,21 +565,7 @@
         .linkCurveRotation(link => link.rotation || 0)
         .nodeLabel(node => {
           const fileName = node.img.split('/').pop().split('.')[0];
-          let communityInfo = '';
-          
-          if (currentCommunityView !== 'none') {
-            const communityData = communities[currentCommunityView];
-            if (communityData) {
-              for (const [name, nodeList] of Object.entries(communityData)) {
-                if (nodeList.includes(node.id)) {
-                  communityInfo = `<br><small>${name.replace('_', ' ')}</small>`;
-                  break;
-                }
-              }
-            }
-          }
-          
-          return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: #c2d4d0; font-size: 12px; font-weight: 500;">${fileName}${communityInfo}</div>`;
+          return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: #c2d4d0; font-size: 12px; font-weight: 500;">${fileName}</div>`;
         })
         .onNodeHover(node => {
           if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return;
@@ -775,61 +604,10 @@
             z: node.z * distRatio
           };
           Graph.cameraPosition(newPos, node, 2000);
-        })
-        .onEngineStop(() => {
-          // Graph is ready but breathing starts off by default
         });
 
       Graph.controls().enableDamping = true;
       Graph.controls().dampingFactor = 0.05;
-    }
-
-    // UI Event handlers
-    function updateCommunityView() {
-      nodeSprites.forEach((sprite, nodeId) => {
-        const node = nodes.find(n => n.id === nodeId);
-        const color = getNodeColor(node);
-        if (sprite?.material) {
-          sprite.material.color.set(color);
-          sprite.material.needsUpdate = true;
-        }
-      });
-
-      Graph.linkColor(getLinkColor);
-      
-      // Update legend
-      const legend = document.getElementById('legend');
-      const legendItems = document.getElementById('legend-items');
-      
-      if (currentCommunityView === 'none') {
-        legend.classList.remove('visible');
-        return;
-      }
-      
-      legend.classList.add('visible');
-      legendItems.innerHTML = '';
-      
-      const communityData = communities[currentCommunityView];
-      const colorData = colors[currentCommunityView];
-      
-      if (communityData && colorData) {
-        Object.entries(communityData).forEach(([name, nodeList]) => {
-          const item = document.createElement('div');
-          item.className = 'legend-item';
-          
-          const colorBox = document.createElement('div');
-          colorBox.className = 'legend-color';
-          colorBox.style.backgroundColor = colorData[name];
-          
-          const label = document.createElement('span');
-          label.className = 'legend-label';
-          label.textContent = name.replace('_', ' ');
-          
-          item.appendChild(colorBox);
-          item.appendChild(label);
-          legendItems.appendChild(item);
-        });
-      }
     }
 
     // Event listeners
@@ -840,59 +618,59 @@
       document.getElementById('toggle-btn').textContent = isOpen ? '☰' : '×';
     });
 
-    document.getElementById('community-select').addEventListener('change', (e) => {
-      currentCommunityView = e.target.value;
-      updateCommunityView();
-    });
-
     document.getElementById('breathing-toggle').addEventListener('click', () => {
       const toggle = document.getElementById('breathing-toggle');
+      isBreathing = !isBreathing;
       if (isBreathing) {
-        stopBreathing();
-        isBreathing = false;
-        toggle.classList.remove('active');
-      } else {
-        isBreathing = true;
         startBreathing();
         toggle.classList.add('active');
+      } else {
+        stopBreathing();
+        toggle.classList.remove('active');
       }
     });
 
     document.getElementById('copy-btn').addEventListener('click', async () => {
+      const text = '[\n' + adjacencyMatrix.map(row => '  [' + row.join(', ') + ']').join(',\n') + '\n]';
       try {
-        const text = '[\n' + adjacencyMatrix.map(row => '  [' + row.join(', ') + ']').join(',\n') + '\n]';
         await navigator.clipboard.writeText(text);
-        
-        const confirm = document.getElementById('copy-confirmation');
-        confirm.classList.add('visible');
-        setTimeout(() => confirm.classList.remove('visible'), 2000);
       } catch (err) {
+        // Fallback for older browsers or insecure contexts
         const textArea = document.createElement('textarea');
-        textArea.value = '[\n' + adjacencyMatrix.map(row => '  [' + row.join(', ') + ']').join(',\n') + '\n]';
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        
-        const confirm = document.getElementById('copy-confirmation');
-        confirm.classList.add('visible');
-        setTimeout(() => confirm.classList.remove('visible'), 2000);
       }
+      const confirm = document.getElementById('copy-confirmation');
+      confirm.classList.add('visible');
+      setTimeout(() => confirm.classList.remove('visible'), 2000);
     });
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const menu = document.getElementById('menu');
-        if (menu.classList.contains('closed')) {
-          document.getElementById('toggle-btn').click();
+        if (!menu.classList.contains('closed')) {
+           document.getElementById('toggle-btn').click();
         }
       }
     });
 
-    // Initialize
-    window.addEventListener('load', () => {
-      setTimeout(initGraph, 100);
-    });
+    // Initialize App
+    async function main() {
+        const graphData = await loadAndProcessGraphData();
+        if (graphData) {
+            nodes = graphData.nodes;
+            links = graphData.links;
+            adjacencyMatrix = graphData.adjacencyMatrix;
+            initGraph();
+        }
+    }
+
+    window.addEventListener('load', main);
   </script>
 </body>
 </html>
