@@ -327,7 +327,7 @@
     .legend-label {
       color: #c2d4d0;
       font-weight: 500;
-      text-transform: capitalize;
+      /* text-transform: capitalize; */ /* Removing capitalize to respect custom names */
     }
 
 
@@ -446,7 +446,7 @@
     <h4 id="legend-title">Communities</h4>
     <div id="legend-items"></div>
   </div>
-  <div id="breathing-toggle" title="Toggle organism breathing" aria-label="Toggle breathing animation" class="active">
+  <div id="breathing-toggle" title="Toggle organism breathing" aria-label="Toggle breathing animation">
     💨
   </div>
   <div id="3d-graph"></div>
@@ -463,16 +463,30 @@
     let communities = {};
     let colors = {};
     let currentCommunityView = 'none';
-    let isBreathing = true; // On by default
+    let isBreathing = false; // Off by default
     let isEngineSettled = false;
     let breathingInterval = null;
     let hoverNode = null;
+    let activeLegendCategory = null;
     const highlightNodes = new Set();
     const highlightLinks = new Set();
     const nodeSprites = new Map();
     const proximityThreshold = 100; // Distance to trigger high-res load
     const thumbnailTextures = new Map();
     const highresTextures = new Map();
+    
+    const artistNameMap = {
+        "Arango Franco Sara": "Sara Arango-Franco",
+        "Bulla Lina": "Lina Bulla",
+        "Camacho Cabrera Gabriel": "Gabriel Camacho Cabrera",
+        "elly": "Ellynne dec",
+        "Emerson Paquette": "Emerson Paquette",
+        "Louison Halgand": "Louison Halgand",
+        "Nadine AbdElRazek": "Nadine AbdElRazek",
+        "Phileas Dazeley Gaist": "Phileas Dazeley-Gaist",
+        "Sonal Raghuvanshi": "Sonal Raghuvanshi",
+        "Thompson Kyle": "Kyle Thompson"
+    };
 
     // Helper to generate a color palette
     function generateColorPalette(keys) {
@@ -507,7 +521,8 @@
             const localNodes = Object.entries(verticesMap).map(([id, filename]) => {
                 const parts = filename.split('-');
                 const phase = `Phase ${parts[0]}`;
-                const author = (parts[1] || 'Unknown').replace(/_/g, ' ');
+                const authorFromFile = (parts[1] || 'Unknown').replace(/_/g, ' ');
+                const author = artistNameMap[authorFromFile] || authorFromFile;
 
                 uniqueAuthors.add(author);
                 uniquePhases.add(phase);
@@ -529,9 +544,12 @@
                 };
             });
             
+            const sortedAuthors = Array.from(uniqueAuthors).sort();
+            const sortedPhases = Array.from(uniquePhases).sort();
+
             const tempColors = {
-                author: generateColorPalette(Array.from(uniqueAuthors)),
-                phase: generateColorPalette(Array.from(uniquePhases).sort())
+                author: generateColorPalette(sortedAuthors),
+                phase: generateColorPalette(sortedPhases)
             };
 
 
@@ -815,12 +833,15 @@
           const fileName = node.img.split('/').pop().split('.')[0];
           let communityInfo = '';
           if (currentCommunityView !== 'none') {
-              communityInfo = `<br><small style="text-transform: capitalize;">${node[currentCommunityView]}</small>`;
+              communityInfo = `<br><small>${node[currentCommunityView]}</small>`;
           }
           return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: #c2d4d0; font-size: 12px; font-weight: 500;">${fileName}${communityInfo}</div>`;
         })
         .onNodeHover(node => {
           if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return;
+
+          activeLegendCategory = null;
+          updateLegendStyles();
 
           highlightNodes.clear();
           highlightLinks.clear();
@@ -837,6 +858,9 @@
         .onLinkHover(link => {
           highlightNodes.clear();
           highlightLinks.clear();
+
+          activeLegendCategory = null;
+          updateLegendStyles();
 
           if (link) {
             highlightLinks.add(link);
@@ -876,6 +900,20 @@
     }
     
     // UI Event handlers
+    function updateLegendStyles() {
+        const legendItems = document.querySelectorAll('.legend-item');
+        legendItems.forEach(item => {
+            const itemName = item.dataset.name;
+            if (activeLegendCategory === null || activeLegendCategory === itemName) {
+                item.style.opacity = '1';
+                item.style.transform = 'translateX(0)';
+            } else {
+                item.style.opacity = '0.5';
+                item.style.transform = 'translateX(-2px)';
+            }
+        });
+    }
+
     function updateCommunityView() {
       nodeSprites.forEach((sprite, nodeId) => {
         const node = nodes.find(n => n.id === nodeId);
@@ -903,9 +941,12 @@
       const colorData = colors[currentCommunityView];
       
       if (colorData) {
-        Object.entries(colorData).forEach(([name, color]) => {
+        Object.entries(colorData).sort((a, b) => a[0].localeCompare(b[0])).forEach(([name, color]) => {
           const item = document.createElement('div');
           item.className = 'legend-item';
+          item.dataset.name = name;
+          item.style.cursor = 'pointer';
+          item.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
           
           const colorBox = document.createElement('div');
           colorBox.className = 'legend-color';
@@ -918,6 +959,41 @@
           item.appendChild(colorBox);
           item.appendChild(label);
           legendItems.appendChild(item);
+
+          item.addEventListener('click', () => {
+              if (activeLegendCategory === name) {
+                  // Deselect
+                  activeLegendCategory = null;
+                  highlightNodes.clear();
+                  highlightLinks.clear();
+              } else {
+                  // Select
+                  activeLegendCategory = name;
+                  highlightNodes.clear();
+                  highlightLinks.clear();
+
+                  const nodeIdsToHighlight = communities[currentCommunityView][name];
+                  if (nodeIdsToHighlight) {
+                      const nodesInCommunity = new Set();
+                      nodeIdsToHighlight.forEach(id => {
+                          const nodeToHighlight = nodes.find(n => n.id === id);
+                          if (nodeToHighlight) {
+                              highlightNodes.add(nodeToHighlight);
+                              nodesInCommunity.add(nodeToHighlight);
+                          }
+                      });
+
+                      // Highlight links between nodes within the same community
+                      links.forEach(link => {
+                          if (nodesInCommunity.has(link.source) && nodesInCommunity.has(link.target)) {
+                              highlightLinks.add(link);
+                          }
+                      });
+                  }
+              }
+              updateHighlight();
+              updateLegendStyles();
+          });
         });
       }
     }
@@ -933,6 +1009,7 @@
 
     document.getElementById('community-select').addEventListener('change', (e) => {
         currentCommunityView = e.target.value;
+        activeLegendCategory = null;
         updateCommunityView();
     });
 
