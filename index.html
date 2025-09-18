@@ -791,44 +791,54 @@
         .graphData({ nodes, links })
         .backgroundColor('rgba(0,0,0,0)')
         .nodeThreeObject(node => {
-          const texture = new THREE.TextureLoader().load(
-            `./art-thumbnails/${node.img}`,
-            (texture) => {
-              texture.colorSpace = THREE.SRGBColorSpace;
-              thumbnailTextures.set(node.id, texture);
-              const sprite = nodeSprites.get(node.id);
-              if (sprite?.material) {
-                sprite.material.color.set(getNodeColor(node));
-                sprite.material.needsUpdate = true;
-              }
-            },
-            undefined,
-            (error) => {
-              console.error(`Image failed for node ${node.id} (${node.img}):`, error);
-              const sprite = nodeSprites.get(node.id);
-              if (sprite) {
-                const canvas = document.createElement('canvas');
-                canvas.width = 64; canvas.height = 64;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#FF6B6B';
-                ctx.fillRect(0, 0, 64, 64);
-                sprite.material.map = new THREE.CanvasTexture(canvas);
-                sprite.material.needsUpdate = true;
-              }
-            }
-          );
-          
-          const material = new THREE.SpriteMaterial({ 
-            map: texture,
-            transparent: true,
-            opacity: 0.9,
-            color: getNodeColor(node)
-          });
-          
-          const sprite = new THREE.Sprite(material);
-          sprite.scale.set(22, 22, 1);
-          nodeSprites.set(node.id, sprite);
-          return sprite;
+            // Create a sprite first, with a material that doesn't have a map yet.
+            const material = new THREE.SpriteMaterial({
+                transparent: true,
+                opacity: 0.9,
+                color: getNodeColor(node)
+            });
+            
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(22, 22, 1);
+            nodeSprites.set(node.id, sprite);
+
+            // Now, load the texture asynchronously and apply it when ready.
+            const loader = new THREE.TextureLoader();
+            loader.load(
+                `./art-thumbnails/${node.img}`,
+                (texture) => { // onLoad
+                    texture.colorSpace = THREE.SRGBColorSpace;
+                    thumbnailTextures.set(node.id, texture);
+                    material.map = texture;
+                    // Re-apply color after map is set to ensure tinting is correct
+                    material.color.set(getNodeColor(node));
+                    material.needsUpdate = true;
+                },
+                undefined, // onProgress
+                (error) => { // onError
+                    console.error(`Image failed for node ${node.id} (${node.img}):`, error);
+                    // Create a fallback canvas texture
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 128;
+                    canvas.height = 128;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#2a3b4d';
+                    ctx.fillRect(0, 0, 128, 128);
+                    ctx.fillStyle = '#c2d4d0';
+                    ctx.font = '16px "DM Sans", system-ui, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('Image', 64, 56);
+                    ctx.fillText('Not Found', 64, 72);
+                    
+                    const fallbackTexture = new THREE.CanvasTexture(canvas);
+                    thumbnailTextures.set(node.id, fallbackTexture); // Store fallback so it can be re-applied
+                    material.map = fallbackTexture;
+                    material.needsUpdate = true;
+                }
+            );
+            
+            return sprite;
         })
         .nodeColor(() => null)
         .linkWidth(1.5)
@@ -1064,6 +1074,17 @@
 
     // Initialize App
     async function main() {
+        // Set initial menu state based on screen width
+        const menu = document.getElementById('menu');
+        const toggleBtn = document.getElementById('toggle-btn');
+        if (window.innerWidth <= 768) {
+            menu.classList.add('closed');
+            toggleBtn.textContent = '☰';
+        } else {
+            // Default state is open on desktop, so ensure the button text is correct
+            toggleBtn.textContent = '×';
+        }
+        
         const graphData = await loadAndProcessGraphData();
         if (graphData) {
             nodes = graphData.nodes;
