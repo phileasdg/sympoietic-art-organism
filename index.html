@@ -174,7 +174,7 @@
       border-color: rgba(255, 255, 255, 0.2);
     }
 
-    #community-select:focus, .search-input:focus {
+    #community-select:focus {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
@@ -444,7 +444,7 @@
       font-size: 0.9rem;
       padding: 4px;
       border-radius: 4px;
-      transition: background-color 0.2s ease;
+      transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
     }
 
     .legend-color {
@@ -624,7 +624,7 @@
     let currentCommunityView = 'none';
     let isBreathing = false; // Off by default
     let isEngineSettled = false;
-    let breathingInterval = null;
+    let phase = 0;
     let hoverNode = null;
     let activeLegendCategory = null;
     let autocompleteIndex = -1;
@@ -701,7 +701,11 @@
                     phase,
                     neighbors: [],
                     links: [],
-                    textureState: 'thumbnail'
+                    textureState: 'thumbnail',
+                    currentScale: 22,
+                    targetScale: 22,
+                    currentOpacity: 0.9,
+                    targetOpacity: 0.9
                 };
             });
             
@@ -716,7 +720,9 @@
 
             const localLinks = edgesList.map(([source, target]) => ({
                 source: parseInt(source, 10),
-                target: parseInt(target, 10)
+                target: parseInt(target, 10),
+                currentOpacity: 0.8,
+                targetOpacity: 0.8
             }));
             
             const edgeSet = new Set(edgesList.map(([s, t]) => `${s},${t}`));
@@ -770,7 +776,8 @@
     // Helper functions
     function getNodeColor(node) {
       if (highlightNodes.has(node)) {
-        return node === hoverNode ? '#A8E6A3' : '#C8F4C3';
+        // When highlighted, show the image without any color tint.
+        return '#ffffff';
       }
       
       if (currentCommunityView === 'none') return '#ffffff';
@@ -810,70 +817,6 @@
       return '#7db8a8';
     }
 
-    function updateHighlight() {
-      nodeSprites.forEach((sprite, nodeId) => {
-        const node = nodes.find(n => n.id === nodeId);
-        const color = getNodeColor(node);
-        if (sprite?.material) {
-          sprite.material.color.set(color);
-          sprite.material.needsUpdate = true;
-        }
-      });
-
-      Graph
-        .linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
-        .linkDirectionalParticles(link => highlightLinks.has(link) ? 3 : 0)
-        .linkDirectionalArrowLength(link => highlightLinks.has(link) ? 12 : 8)
-        .linkDirectionalArrowColor(link => highlightLinks.has(link) ? '#7ED377' : getLinkColor(link))
-        .linkColor(getLinkColor);
-    }
-
-    // Breathing system
-    function startBreathing() {
-      if (breathingInterval || !isEngineSettled) return;
-      
-      let phase = 0;
-      
-      breathingInterval = setInterval(() => {
-        phase += 0.02; // Adjust speed of the breathing cycle
-
-        nodes.forEach(node => {
-            if (!node.__threeObj) return;
-            
-            // Apply a noticeable scaling effect, timed with the breathing
-            const scalePhase = phase + (node.id * 0.5); // Offset phase per node
-            const scale = 25 * (1 + 0.4 * Math.sin(scalePhase)); // More pronounced scale variation
-            node.__threeObj.scale.setScalar(scale);
-        });
-
-        // Fluctuate link width and opacity to create a "pulsing" or "breathing" effect through the connections.
-        const pulseFactor = 1 + 0.9 * Math.sin(phase * 1.5); // More pronounced variation (0.1 to 1.9)
-        Graph.linkWidth(link => (highlightLinks.has(link) ? 3 : 1.5) * pulseFactor);
-
-        // Fluctuate link opacity with a slight phase shift from the width pulse for a more dynamic feel
-        const linkOpacity = 0.65 + 0.2 * Math.sin(phase * 1.5 + Math.PI / 2);
-        Graph.linkOpacity(Math.max(0.35, Math.min(0.85, linkOpacity)));
-
-      }, 40);
-    }
-
-    function stopBreathing() {
-      if (breathingInterval) {
-        clearInterval(breathingInterval);
-        breathingInterval = null;
-      }
-      
-      // Reset nodes scale
-      nodes.forEach(node => {
-          if (node.__threeObj) {
-              node.__threeObj.scale.setScalar(22);
-          }
-      });
-      
-      Graph.linkOpacity(0.8);
-      updateHighlight(); // Resets link widths and other properties based on the current hover state.
-    }
-    
     // Dynamic Texture Loading System
     function manageDynamicTextures() {
         if (!Graph || !Graph.camera()) return;
@@ -928,12 +871,81 @@
         });
     }
 
-    function startTextureManagementLoop() {
-        function animate() {
+    function updateGraphVisuals() {
+        const isCommunityHighlightActive = activeLegendCategory !== null;
+        const easing = 0.1;
+
+        // 1. Determine TARGETS for nodes
+        nodes.forEach(node => {
+            const isHighlighted = highlightNodes.has(node);
+            if (isCommunityHighlightActive) {
+                if (isHighlighted) {
+                    node.targetScale = 30;
+                    node.targetOpacity = 1.0;
+                } else {
+                    node.targetScale = 18;
+                    node.targetOpacity = 0.45;
+                }
+            } else if (hoverNode) {
+                node.targetScale = 22;
+                node.targetOpacity = isHighlighted ? 1.0 : 0.5;
+            } else {
+                node.targetScale = 22;
+                node.targetOpacity = 0.9;
+            }
+        });
+
+        // 2. Determine TARGETS for links
+        links.forEach(link => {
+            if (isCommunityHighlightActive) {
+                link.targetOpacity = highlightLinks.has(link) ? 0.9 : 0.3;
+            } else if (hoverNode) {
+                link.targetOpacity = highlightLinks.has(link) ? 0.9 : 0.3;
+            } else {
+                link.targetOpacity = 0.8;
+            }
+        });
+
+        // 3. INTERPOLATE and APPLY for nodes
+        nodeSprites.forEach((sprite, nodeId) => {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!sprite || !node || !sprite.material) return;
+
+            // Interpolate
+            node.currentScale += (node.targetScale - node.currentScale) * easing;
+            node.currentOpacity += (node.targetOpacity - node.currentOpacity) * easing;
+
+            let finalScale = node.currentScale;
+            if (isBreathing && isEngineSettled) {
+                const scalePhase = phase + (node.id * 0.5);
+                finalScale = node.currentScale * (1 + 0.25 * Math.sin(scalePhase));
+            }
+            
+            sprite.scale.set(finalScale, finalScale, 1);
+            sprite.material.color.set(getNodeColor(node));
+            sprite.material.opacity = node.currentOpacity;
+        });
+
+        // 4. INTERPOLATE for links
+        Graph.graphData().links.forEach(link => {
+            link.currentOpacity += (link.targetOpacity - link.currentOpacity) * easing;
+        });
+
+        // 5. Update non-interpolated visuals
+        Graph.linkWidth(link => highlightLinks.has(link) ? 3 : 1.5)
+             .linkDirectionalParticles(link => highlightLinks.has(link) ? 3 : 0);
+    }
+    
+    function startRenderLoop() {
+        function renderLoop() {
+            if (isBreathing) {
+                phase += 0.02;
+            }
             manageDynamicTextures();
-            requestAnimationFrame(animate);
+            updateGraphVisuals();
+            requestAnimationFrame(renderLoop);
         }
-        animate();
+        renderLoop();
     }
 
 
@@ -1002,7 +1014,7 @@
         .linkDirectionalArrowLength(8)
         .linkDirectionalArrowRelPos(0.85)
         .linkColor(getLinkColor)
-        .linkOpacity(0.8)
+        .linkOpacity(link => link.currentOpacity) // Use interpolated value
         .linkCurvature(link => link.curvature || 0)
         .linkCurveRotation(link => link.rotation || 0)
         .nodeLabel(node => {
@@ -1029,7 +1041,6 @@
           }
 
           hoverNode = node || null;
-          updateHighlight();
         })
         .onLinkHover(link => {
           highlightNodes.clear();
@@ -1043,8 +1054,6 @@
             highlightNodes.add(link.source);
             highlightNodes.add(link.target);
           }
-
-          updateHighlight();
         })
         .onNodeClick(node => {
           if (!node) return;
@@ -1065,10 +1074,6 @@
                 node.naturalZ = node.z;
             });
             isEngineSettled = true;
-
-            if (isBreathing) {
-                startBreathing();
-            }
         });
 
       Graph.controls().enableDamping = true;
@@ -1080,29 +1085,26 @@
         const legendItems = document.querySelectorAll('.legend-item');
         legendItems.forEach(item => {
             const itemName = item.dataset.name;
-            if (activeLegendCategory === null || activeLegendCategory === itemName) {
+            if (activeLegendCategory === null) {
                 item.style.opacity = '1';
                 item.style.transform = 'translateX(0)';
+                item.style.background = 'transparent';
+
+            } else if (activeLegendCategory === itemName) {
+                item.style.opacity = '1';
+                item.style.transform = 'translateX(0)';
+                item.style.background = 'rgba(255, 255, 255, 0.1)';
             } else {
                 item.style.opacity = '0.5';
                 item.style.transform = 'translateX(-2px)';
+                item.style.background = 'transparent';
             }
         });
     }
 
     function updateCommunityView() {
-      nodeSprites.forEach((sprite, nodeId) => {
-        const node = nodes.find(n => n.id === nodeId);
-        const color = getNodeColor(node);
-        if (sprite?.material) {
-          sprite.material.color.set(color);
-          sprite.material.needsUpdate = true;
-        }
-      });
-
-      Graph.linkColor(getLinkColor);
-      
-      // Update legend
+      // This function now only needs to update the legend, 
+      // as the render loop handles node color changes.
       const legend = document.getElementById('legend');
       const legendItems = document.getElementById('legend-items');
       
@@ -1163,7 +1165,6 @@
                       });
                   }
               }
-              updateHighlight();
               updateLegendStyles();
           });
         });
@@ -1191,13 +1192,7 @@
     document.getElementById('breathing-toggle').addEventListener('click', () => {
       const toggle = document.getElementById('breathing-toggle');
       isBreathing = !isBreathing;
-      if (isBreathing) {
-        startBreathing();
-        toggle.classList.add('active');
-      } else {
-        stopBreathing();
-        toggle.classList.remove('active');
-      }
+      toggle.classList.toggle('active', isBreathing);
     });
 
     document.getElementById('copy-btn').addEventListener('click', async () => {
@@ -1245,7 +1240,22 @@
         node.neighbors.forEach(n => highlightNodes.add(n));
         node.links.forEach(l => highlightLinks.add(l));
         hoverNode = node;
-        updateHighlight();
+    }
+
+    function panToNode(node) {
+        const distance = 80;
+        const distRatio = 1 + distance / Math.hypot(node.x || 0, node.y || 0, node.z || 0);
+        const newPos = {
+          x: (node.x || 0) * distRatio,
+          y: (node.y || 0) * distRatio,
+          z: (node.z || 0) * distRatio
+        };
+        Graph.cameraPosition(newPos, node, 1000);
+
+        // Clear any existing highlights when jumping to a random node
+        highlightNodes.clear();
+        highlightLinks.clear();
+        hoverNode = null;
     }
 
     document.querySelectorAll('.search-box').forEach(searchBox => {
@@ -1268,7 +1278,6 @@
                         highlightLinks.add(link);
                     }
                 });
-                updateHighlight();
                 closeAllAutocompletes();
                 return;
             }
@@ -1356,7 +1365,8 @@
         btn.addEventListener('click', () => {
             if (nodes.length > 0) {
                 const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
-                if(randomNode) focusOnNode(randomNode);
+                if (randomNode) panToNode(randomNode);
+                document.querySelectorAll('.search-input').forEach(input => input.value = '');
             }
         });
     });
@@ -1386,7 +1396,7 @@
             communities = graphData.communities;
             colors = graphData.colors;
             initGraph();
-            startTextureManagementLoop();
+            startRenderLoop();
         }
     }
 
