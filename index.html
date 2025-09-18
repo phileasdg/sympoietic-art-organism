@@ -15,18 +15,32 @@
   <title>Sympoietic Art Organism</title>
 
   <!-- Modern Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <style>
+    :root {
+      --font-sans: 'DM Sans', system-ui, sans-serif;
+      --text-primary: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --bg-dark: #0f1419;
+      --surface-1: rgba(20, 30, 40, 0.75);
+      --surface-2: rgba(15, 23, 32, 0.9);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --accent: #7db8a8;
+      --accent-dark: #1a2a2e;
+    }
+
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      background: #0f1419;
-      color: #c2d4d0;
+      font-family: var(--font-sans);
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
       overflow: hidden;
       cursor: default;
     }
@@ -36,9 +50,9 @@
       position: fixed;
       top: 20px;
       left: 20px;
-      background: rgba(20, 30, 40, 0.90);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(100, 140, 130, 0.15);
+      background: var(--surface-1);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 20px 26px;
       width: 420px;
@@ -46,7 +60,7 @@
       flex-direction: column;
       gap: 16px;
       z-index: 100;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
       transition: all 0.3s ease;
       transform-origin: top left;
     }
@@ -68,34 +82,35 @@
     #menu.closed #title-container,
     #menu.closed #subtitle,
     #menu.closed #nav-box,
-    #menu.closed #community-section {
+    #menu.closed #community-section,
+    #menu.closed #mobile-search-section {
       display: none;
     }
 
     #title {
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       font-weight: 600;
       margin: 0;
-      color: #c2d4d0;
+      color: var(--text-primary);
       text-decoration: none;
       transition: color 0.2s ease;
     }
 
     #title:hover {
-      color: #7db8a8;
+      color: var(--accent);
     }
 
     #subtitle {
       font-size: 0.95rem;
-      line-height: 1.5;
+      line-height: 1.6;
       opacity: 0.85;
-      color: #c2d4d0;
+      color: var(--text-secondary);
       margin: 0;
     }
 
     #nav-box {
-      background: rgba(100, 140, 130, 0.06);
-      border: 1px solid rgba(100, 140, 130, 0.12);
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 8px;
       padding: 16px;
     }
@@ -110,7 +125,7 @@
     }
 
     nav ul li a {
-      color: #c2d4d0;
+      color: var(--text-primary);
       text-decoration: none;
       font-weight: 500;
       font-size: 1.05rem;
@@ -121,32 +136,32 @@
     }
 
     nav ul li a:hover {
-      background: #7db8a8;
-      color: #1a2a2e;
+      background: var(--accent);
+      color: var(--accent-dark);
       transform: translateX(2px);
     }
     
-    /* Community section */
-    #community-section {
-      background: rgba(100, 140, 130, 0.06);
-      border: 1px solid rgba(100, 140, 130, 0.12);
+    /* Community & Mobile Search */
+    #community-section, #mobile-search-section {
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 8px;
       padding: 16px;
     }
 
-    #community-title {
-      font-size: 1.1rem;
+    #community-title, #search-title {
+      font-size: 1.2rem;
       font-weight: 600;
       margin: 0 0 12px 0;
-      color: #c2d4d0;
+      color: var(--text-primary);
     }
 
     #community-select {
       width: 100%;
-      background: rgba(50, 70, 80, 0.8);
-      border: 1px solid rgba(100, 140, 130, 0.2);
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      color: #c2d4d0;
+      color: var(--text-primary);
       padding: 12px 16px;
       font-size: 0.95rem;
       font-weight: 500;
@@ -156,18 +171,125 @@
     }
 
     #community-select:hover {
-      background: rgba(70, 90, 100, 0.8);
-      border-color: rgba(100, 140, 130, 0.4);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
-    #community-select:focus {
-      outline: 2px solid #7db8a8;
+    #community-select:focus, .search-input:focus {
+      outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
 
     #community-select option {
-      background: #1a2a2e;
-      color: #c2d4d0;
+      background: var(--surface-2);
+      color: var(--text-primary);
+    }
+
+    /* Search Section */
+    .desktop-search {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+        width: 300px;
+    }
+
+    .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: border-color 0.3s ease;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        background: var(--surface-1);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+        padding: 4px;
+    }
+    .search-box:focus-within {
+        border-color: var(--accent);
+    }
+
+
+    .search-input {
+      flex-grow: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      font-family: inherit;
+      outline: none;
+    }
+    .search-input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    .search-btn, .random-btn {
+      padding: 0;
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      font-size: 1.2rem;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      border-radius: 8px;
+    }
+    .search-btn:hover, .random-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+    }
+
+    #mobile-search-section {
+        display: none;
+    }
+    #mobile-search-section .search-box {
+        background: rgba(0,0,0,0.2);
+        border: 1px solid var(--border-color);
+        padding: 4px;
+    }
+
+
+    .autocomplete-results {
+        display: none;
+        position: absolute;
+        top: 105%;
+        left: 0;
+        right: 0;
+        background: var(--surface-2);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        max-height: 220px;
+        overflow-y: auto;
+        z-index: 999;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    }
+
+    .autocomplete-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        color: var(--text-primary);
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .autocomplete-item:last-child {
+        border-bottom: none;
+    }
+
+    .autocomplete-item small {
+        opacity: 0.7;
+        display: block;
+        font-size: 0.8rem;
+    }
+
+    .autocomplete-item:hover, .autocomplete-item.active {
+        background: var(--accent);
+        color: var(--accent-dark);
     }
 
 
@@ -179,7 +301,7 @@
       display: block;
       font-size: 1.3rem;
       font-weight: 600;
-      color: #c2d4d0;
+      color: var(--text-primary);
       writing-mode: vertical-rl;
       text-orientation: mixed;
       max-height: 180px;
@@ -199,10 +321,10 @@
 
     /* Buttons */
     button {
-      background: rgba(50, 70, 80, 0.8);
-      border: 1px solid rgba(100, 140, 130, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      color: #c2d4d0;
+      color: var(--text-secondary);
       cursor: pointer;
       padding: 12px 20px;
       font-size: 0.95rem;
@@ -211,10 +333,11 @@
     }
 
     button:hover {
-      background: #7db8a8;
-      color: #1a2a2e;
+      background: var(--accent);
+      color: var(--accent-dark);
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border-color: var(--accent);
     }
 
     button:active {
@@ -229,11 +352,6 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      transition: all 0.2s ease;
-    }
-
-    #toggle-btn:hover {
-      transform: scale(1.05);
     }
 
     #menu.closed #copy-btn {
@@ -252,8 +370,8 @@
       bottom: 40px;
       left: 50%;
       transform: translate(-50%, 40px);
-      background: #7db8a8;
-      color: #1a2a2e;
+      background: var(--accent);
+      color: var(--accent-dark);
       padding: 12px 24px;
       border-radius: 8px;
       font-weight: 600;
@@ -279,7 +397,7 @@
       right: 0;
       bottom: 0;
       z-index: 0;
-      background: radial-gradient(ellipse at center, #1a252f 0%, #0f1419 100%);
+      background: transparent;
     }
 
     #graph-overlay {
@@ -293,17 +411,17 @@
     /* Legend */
     #legend {
       position: fixed;
-      top: 20px;
+      top: 90px;
       right: 20px;
-      background: rgba(20, 30, 40, 0.90);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(100, 140, 130, 0.15);
+      background: var(--surface-1);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 16px 20px;
       z-index: 99;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
       transition: all 0.3s ease;
-      max-width: 200px;
+      max-width: 220px;
       display: none;
     }
 
@@ -312,42 +430,48 @@
     }
 
     #legend-title {
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 600;
       margin: 0 0 12px 0;
-      color: #c2d4d0;
+      color: var(--text-primary);
     }
 
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 8px;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      padding: 4px;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
     }
 
     .legend-color {
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      border: 1px solid rgba(100, 140, 130, 0.2);
+      border: 1px solid rgba(255,255,255, 0.2);
+      flex-shrink: 0;
     }
 
     .legend-label {
-      color: #c2d4d0;
+      color: var(--text-secondary);
       font-weight: 500;
-      /* text-transform: capitalize; */ /* Removing capitalize to respect custom names */
+      transition: color 0.2s ease;
     }
-
+    .legend-item:hover .legend-label {
+        color: var(--text-primary);
+    }
 
     /* Breathing toggle button */
     #breathing-toggle {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: rgba(20, 30, 40, 0.90);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(100, 140, 130, 0.15);
+      background: var(--surface-1);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
       border-radius: 50%;
       width: 56px;
       height: 56px;
@@ -355,27 +479,23 @@
       align-items: center;
       justify-content: center;
       z-index: 100;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
       cursor: pointer;
       transition: all 0.3s ease;
       font-size: 1.5rem;
-      color: #7db8a8;
+      color: var(--accent);
     }
 
     #breathing-toggle:hover {
-      background: rgba(30, 40, 50, 0.95);
       transform: scale(1.05);
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(125, 184, 168, 0.2);
     }
 
     #breathing-toggle.active {
-      background: #7db8a8;
-      color: #1a2a2e;
+      background: var(--accent);
+      color: var(--accent-dark);
       box-shadow: 0 0 20px rgba(125, 184, 168, 0.4);
-    }
-
-    #breathing-toggle.active:hover {
-      background: #8dc4b4;
     }
 
     /* Responsive improvements */
@@ -391,6 +511,17 @@
         padding: 12px 10px;
         width: auto;
       }
+
+      .desktop-search {
+        display: none;
+      }
+      #mobile-search-section {
+        display: block;
+      }
+      #legend {
+        display: none !important;
+      }
+
 
       #breathing-toggle {
         bottom: 16px;
@@ -414,7 +545,7 @@
     /* Focus states for keyboard navigation */
     button:focus,
     nav ul li a:focus {
-      outline: 2px solid #7db8a8;
+      outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
   </style>
@@ -444,11 +575,29 @@
           <option value="phase">By Project Phase</option>
         </select>
     </div>
+    <div id="mobile-search-section">
+      <h3 id="search-title">Find Artwork</h3>
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="Search piece or artist...">
+        <button class="search-btn" aria-label="Search">🔍</button>
+        <button class="random-btn" aria-label="Jump to random node">🎲</button>
+        <div class="autocomplete-results"></div>
+      </div>
+    </div>
     <div id="buttons-container">
       <button id="toggle-btn" aria-label="Toggle menu">×</button>
       <button id="copy-btn">📋 Copy network<br>adjacency matrix</button>
     </div>
   </nav>
+
+  <div class="desktop-search">
+    <div class="search-box">
+      <input type="text" class="search-input" placeholder="Search piece or artist...">
+      <button class="search-btn" aria-label="Search">🔍</button>
+      <button class="random-btn" aria-label="Jump to random node">🎲</button>
+      <div class="autocomplete-results"></div>
+    </div>
+  </div>
 
   <div id="copy-confirmation" role="alert" aria-live="polite">Copied!</div>
   <div id="legend">
@@ -471,12 +620,14 @@
     let adjacencyMatrix = [];
     let communities = {};
     let colors = {};
+    let uniqueArtists = [];
     let currentCommunityView = 'none';
     let isBreathing = false; // Off by default
     let isEngineSettled = false;
     let breathingInterval = null;
     let hoverNode = null;
     let activeLegendCategory = null;
+    let autocompleteIndex = -1;
     const highlightNodes = new Set();
     const highlightLinks = new Set();
     const nodeSprites = new Map();
@@ -523,7 +674,7 @@
             const edgesList = await edgesRes.json();
             
             const tempCommunities = { author: {}, phase: {} };
-            const uniqueAuthors = new Set();
+            const uniqueAuthorsSet = new Set();
             const uniquePhases = new Set();
 
             // Build graph data
@@ -533,7 +684,7 @@
                 const authorFromFile = (parts[1] || 'Unknown').replace(/_/g, ' ');
                 const author = artistNameMap[authorFromFile] || authorFromFile;
 
-                uniqueAuthors.add(author);
+                uniqueAuthorsSet.add(author);
                 uniquePhases.add(phase);
 
                 if (!tempCommunities.author[author]) tempCommunities.author[author] = [];
@@ -545,6 +696,7 @@
                 return {
                     id: parseInt(id, 10),
                     img: `${filename}.jpeg`,
+                    name: filename.replace(/_/g, ' '),
                     author,
                     phase,
                     neighbors: [],
@@ -553,11 +705,11 @@
                 };
             });
             
-            const sortedAuthors = Array.from(uniqueAuthors).sort();
+            uniqueArtists = Array.from(uniqueAuthorsSet).sort();
             const sortedPhases = Array.from(uniquePhases).sort();
 
             const tempColors = {
-                author: generateColorPalette(sortedAuthors),
+                author: generateColorPalette(uniqueArtists),
                 phase: generateColorPalette(sortedPhases)
             };
 
@@ -791,10 +943,7 @@
         .graphData({ nodes, links })
         .backgroundColor('rgba(0,0,0,0)')
         .nodeThreeObject(node => {
-            // Capture node-specific data immediately to avoid closure issues in async callbacks.
             const currentNode = { ...node };
-
-            // Create a sprite with a material. The texture will be added later.
             const material = new THREE.SpriteMaterial({
                 transparent: true,
                 opacity: 0.9,
@@ -803,32 +952,25 @@
             
             const sprite = new THREE.Sprite(material);
             sprite.scale.set(22, 22, 1);
-            
-            // Store the sprite in our map right away.
             nodeSprites.set(currentNode.id, sprite);
 
-            // Asynchronously load the texture.
             const loader = new THREE.TextureLoader();
             loader.load(
                 `./art-thumbnails/${currentNode.img}`,
-                (texture) => { // onLoad callback
+                (texture) => {
                     texture.colorSpace = THREE.SRGBColorSpace;
                     thumbnailTextures.set(currentNode.id, texture);
-
-                    // When the texture is ready, find the correct sprite from the map and update its material.
                     const spriteToUpdate = nodeSprites.get(currentNode.id);
                     if (spriteToUpdate) {
                         spriteToUpdate.material.map = texture;
-                        // The color might have changed if the user selected a community view while loading.
                         spriteToUpdate.material.color.set(getNodeColor(currentNode));
                         spriteToUpdate.material.needsUpdate = true;
                     }
                 },
-                undefined, // onProgress callback (not used)
-                (error) => { // onError callback
+                undefined,
+                (error) => {
                     console.error(`Image failed for node ${currentNode.id} (${currentNode.img}):`, error);
                     
-                    // Create a fallback canvas texture for missing images.
                     const canvas = document.createElement('canvas');
                     canvas.width = 128;
                     canvas.height = 128;
@@ -843,9 +985,8 @@
                     ctx.fillText('Not Found', 64, 72);
                     
                     const fallbackTexture = new THREE.CanvasTexture(canvas);
-                    thumbnailTextures.set(currentNode.id, fallbackTexture); // Store fallback texture
+                    thumbnailTextures.set(currentNode.id, fallbackTexture);
 
-                    // Find the correct sprite and apply the fallback.
                     const spriteToUpdate = nodeSprites.get(currentNode.id);
                     if (spriteToUpdate) {
                         spriteToUpdate.material.map = fallbackTexture;
@@ -854,7 +995,6 @@
                 }
             );
             
-            // Return the sprite immediately so the graph can render.
             return sprite;
         })
         .nodeColor(() => null)
@@ -871,7 +1011,7 @@
           if (currentCommunityView !== 'none') {
               communityInfo = `<br><small>${node[currentCommunityView]}</small>`;
           }
-          return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: #c2d4d0; font-size: 12px; font-weight: 500;">${fileName}${communityInfo}</div>`;
+          return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: var(--text-primary); font-size: 12px; font-weight: 500;">${fileName}${communityInfo}</div>`;
         })
         .onNodeHover(node => {
           if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return;
@@ -982,7 +1122,6 @@
           item.className = 'legend-item';
           item.dataset.name = name;
           item.style.cursor = 'pointer';
-          item.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
           
           const colorBox = document.createElement('div');
           colorBox.className = 'legend-color';
@@ -998,12 +1137,10 @@
 
           item.addEventListener('click', () => {
               if (activeLegendCategory === name) {
-                  // Deselect
                   activeLegendCategory = null;
                   highlightNodes.clear();
                   highlightLinks.clear();
               } else {
-                  // Select
                   activeLegendCategory = name;
                   highlightNodes.clear();
                   highlightLinks.clear();
@@ -1019,7 +1156,6 @@
                           }
                       });
 
-                      // Highlight links between nodes within the same community
                       links.forEach(link => {
                           if (nodesInCommunity.has(link.source) && nodesInCommunity.has(link.target)) {
                               highlightLinks.add(link);
@@ -1034,6 +1170,9 @@
       }
     }
 
+    function closeAllAutocompletes() {
+        document.querySelectorAll('.autocomplete-results').forEach(el => el.style.display = 'none');
+    }
 
     // Event listeners
     document.getElementById('toggle-btn').addEventListener('click', () => {
@@ -1051,7 +1190,7 @@
 
     document.getElementById('breathing-toggle').addEventListener('click', () => {
       const toggle = document.getElementById('breathing-toggle');
-      isBreathing = !isBreathing; // Toggle the state
+      isBreathing = !isBreathing;
       if (isBreathing) {
         startBreathing();
         toggle.classList.add('active');
@@ -1086,19 +1225,156 @@
         if (!menu.classList.contains('closed')) {
            document.getElementById('toggle-btn').click();
         }
+        closeAllAutocompletes();
       }
+    });
+
+    function focusOnNode(node) {
+        const distance = 80;
+        const distRatio = 1 + distance / Math.hypot(node.x || 0, node.y || 0, node.z || 0);
+        const newPos = {
+          x: (node.x || 0) * distRatio,
+          y: (node.y || 0) * distRatio,
+          z: (node.z || 0) * distRatio
+        };
+        Graph.cameraPosition(newPos, node, 1000);
+        
+        highlightNodes.clear();
+        highlightLinks.clear();
+        highlightNodes.add(node);
+        node.neighbors.forEach(n => highlightNodes.add(n));
+        node.links.forEach(l => highlightLinks.add(l));
+        hoverNode = node;
+        updateHighlight();
+    }
+
+    document.querySelectorAll('.search-box').forEach(searchBox => {
+        const searchInput = searchBox.querySelector('.search-input');
+        const autocompleteResults = searchBox.querySelector('.autocomplete-results');
+
+        const performSearch = () => {
+            const searchValue = searchInput.value.trim();
+            const searchValueLower = searchValue.toLowerCase();
+
+            const artistMatch = uniqueArtists.find(a => a.toLowerCase() === searchValueLower);
+            if(artistMatch){
+                highlightNodes.clear();
+                highlightLinks.clear();
+                const nodesByArtist = nodes.filter(n => n.author === artistMatch);
+                const artistNodeSet = new Set(nodesByArtist);
+                artistNodeSet.forEach(node => highlightNodes.add(node));
+                links.forEach(link => {
+                    if(artistNodeSet.has(link.source) && artistNodeSet.has(link.target)){
+                        highlightLinks.add(link);
+                    }
+                });
+                updateHighlight();
+                closeAllAutocompletes();
+                return;
+            }
+
+            const nodeByName = nodes.find(n => n.name.toLowerCase() === searchValueLower);
+            if(nodeByName){
+                focusOnNode(nodeByName);
+                closeAllAutocompletes();
+                return;
+            }
+
+            const nodeById = nodes.find(n => n.id.toString() === searchValue);
+            if(nodeById){
+                focusOnNode(nodeById);
+                closeAllAutocompletes();
+                return;
+            }
+            
+            searchInput.value = '';
+            searchInput.placeholder = 'No results found!';
+            setTimeout(() => { searchInput.placeholder = 'Search piece or artist...'; }, 2000);
+            closeAllAutocompletes();
+        }
+
+        searchInput.addEventListener('input', () => {
+            const value = searchInput.value.toLowerCase();
+            autocompleteResults.innerHTML = '';
+            if (value.length === 0) {
+                closeAllAutocompletes();
+                return;
+            }
+
+            const matchingNodes = nodes
+                .filter(node => node.name.toLowerCase().includes(value))
+                .slice(0, 10);
+
+            if (matchingNodes.length > 0) {
+                matchingNodes.forEach(node => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.innerHTML = `<b>${node.name}</b><small>by ${node.author}</small>`;
+                    item.addEventListener('click', () => {
+                        searchInput.value = node.name;
+                        performSearch();
+                    });
+                    autocompleteResults.appendChild(item);
+                });
+                autocompleteResults.style.display = 'block';
+            } else {
+                closeAllAutocompletes();
+            }
+            autocompleteIndex = -1;
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+            const items = autocompleteResults.getElementsByClassName('autocomplete-item');
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (autocompleteIndex > -1) {
+                    items[autocompleteIndex].click();
+                } else {
+                    performSearch();
+                }
+            } else if (items.length > 0) {
+                if (e.key === 'ArrowDown') {
+                    autocompleteIndex = (autocompleteIndex + 1) % items.length;
+                    updateAutocompleteActive(items);
+                } else if (e.key === 'ArrowUp') {
+                    autocompleteIndex = (autocompleteIndex - 1 + items.length) % items.length;
+                    updateAutocompleteActive(items);
+                }
+            }
+        });
+        
+        const updateAutocompleteActive = (items) => {
+            Array.from(items).forEach((item, index) => {
+                item.classList.toggle('active', index === autocompleteIndex);
+            });
+        }
+
+        searchBox.querySelector('.search-btn').addEventListener('click', performSearch);
+    });
+
+    document.querySelectorAll('.random-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (nodes.length > 0) {
+                const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
+                if(randomNode) focusOnNode(randomNode);
+            }
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-box')) {
+            closeAllAutocompletes();
+        }
     });
 
     // Initialize App
     async function main() {
-        // Set initial menu state based on screen width
         const menu = document.getElementById('menu');
         const toggleBtn = document.getElementById('toggle-btn');
         if (window.innerWidth <= 768) {
             menu.classList.add('closed');
             toggleBtn.textContent = '☰';
         } else {
-            // Default state is open on desktop, so ensure the button text is correct
             toggleBtn.textContent = '×';
         }
         
