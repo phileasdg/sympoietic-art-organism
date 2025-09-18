@@ -791,33 +791,44 @@
         .graphData({ nodes, links })
         .backgroundColor('rgba(0,0,0,0)')
         .nodeThreeObject(node => {
-            // Create a sprite first, with a material that doesn't have a map yet.
+            // Capture node-specific data immediately to avoid closure issues in async callbacks.
+            const currentNode = { ...node };
+
+            // Create a sprite with a material. The texture will be added later.
             const material = new THREE.SpriteMaterial({
                 transparent: true,
                 opacity: 0.9,
-                color: getNodeColor(node)
+                color: getNodeColor(currentNode)
             });
             
             const sprite = new THREE.Sprite(material);
             sprite.scale.set(22, 22, 1);
-            nodeSprites.set(node.id, sprite);
+            
+            // Store the sprite in our map right away.
+            nodeSprites.set(currentNode.id, sprite);
 
-            // Now, load the texture asynchronously and apply it when ready.
+            // Asynchronously load the texture.
             const loader = new THREE.TextureLoader();
             loader.load(
-                `./art-thumbnails/${node.img}`,
-                (texture) => { // onLoad
+                `./art-thumbnails/${currentNode.img}`,
+                (texture) => { // onLoad callback
                     texture.colorSpace = THREE.SRGBColorSpace;
-                    thumbnailTextures.set(node.id, texture);
-                    material.map = texture;
-                    // Re-apply color after map is set to ensure tinting is correct
-                    material.color.set(getNodeColor(node));
-                    material.needsUpdate = true;
+                    thumbnailTextures.set(currentNode.id, texture);
+
+                    // When the texture is ready, find the correct sprite from the map and update its material.
+                    const spriteToUpdate = nodeSprites.get(currentNode.id);
+                    if (spriteToUpdate) {
+                        spriteToUpdate.material.map = texture;
+                        // The color might have changed if the user selected a community view while loading.
+                        spriteToUpdate.material.color.set(getNodeColor(currentNode));
+                        spriteToUpdate.material.needsUpdate = true;
+                    }
                 },
-                undefined, // onProgress
-                (error) => { // onError
-                    console.error(`Image failed for node ${node.id} (${node.img}):`, error);
-                    // Create a fallback canvas texture
+                undefined, // onProgress callback (not used)
+                (error) => { // onError callback
+                    console.error(`Image failed for node ${currentNode.id} (${currentNode.img}):`, error);
+                    
+                    // Create a fallback canvas texture for missing images.
                     const canvas = document.createElement('canvas');
                     canvas.width = 128;
                     canvas.height = 128;
@@ -832,12 +843,18 @@
                     ctx.fillText('Not Found', 64, 72);
                     
                     const fallbackTexture = new THREE.CanvasTexture(canvas);
-                    thumbnailTextures.set(node.id, fallbackTexture); // Store fallback so it can be re-applied
-                    material.map = fallbackTexture;
-                    material.needsUpdate = true;
+                    thumbnailTextures.set(currentNode.id, fallbackTexture); // Store fallback texture
+
+                    // Find the correct sprite and apply the fallback.
+                    const spriteToUpdate = nodeSprites.get(currentNode.id);
+                    if (spriteToUpdate) {
+                        spriteToUpdate.material.map = fallbackTexture;
+                        spriteToUpdate.material.needsUpdate = true;
+                    }
                 }
             );
             
+            // Return the sprite immediately so the graph can render.
             return sprite;
         })
         .nodeColor(() => null)
