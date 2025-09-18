@@ -82,8 +82,7 @@
     #menu.closed #title-container,
     #menu.closed #subtitle,
     #menu.closed #nav-box,
-    #menu.closed #community-section,
-    #menu.closed #mobile-search-section {
+    #menu.closed #community-section {
       display: none;
     }
 
@@ -142,7 +141,7 @@
     }
     
     /* Community & Mobile Search */
-    #community-section, #mobile-search-section {
+    #community-section {
       background: rgba(0, 0, 0, 0.15);
       border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 8px;
@@ -242,16 +241,6 @@
         background: rgba(255, 255, 255, 0.1);
         color: var(--text-primary);
     }
-
-    #mobile-search-section {
-        display: none;
-    }
-    #mobile-search-section .search-box {
-        background: rgba(0,0,0,0.2);
-        border: 1px solid var(--border-color);
-        padding: 4px;
-    }
-
 
     .autocomplete-results {
         display: none;
@@ -515,9 +504,7 @@
       .desktop-search {
         display: none;
       }
-      #mobile-search-section {
-        display: block;
-      }
+
       #legend {
         display: none !important;
       }
@@ -574,15 +561,6 @@
           <option value="author">By Author</option>
           <option value="phase">By Project Phase</option>
         </select>
-    </div>
-    <div id="mobile-search-section">
-      <h3 id="search-title">Find Artwork</h3>
-      <div class="search-box">
-        <input type="text" class="search-input" placeholder="Search piece or artist...">
-        <button class="search-btn" aria-label="Search">🔍</button>
-        <button class="random-btn" aria-label="Jump to random node">🎲</button>
-        <div class="autocomplete-results"></div>
-      </div>
     </div>
     <div id="buttons-container">
       <button id="toggle-btn" aria-label="Toggle menu">×</button>
@@ -884,11 +862,11 @@
                     node.targetOpacity = 1.0;
                 } else {
                     node.targetScale = 18;
-                    node.targetOpacity = 0.45;
+                    node.targetOpacity = 0.3; 
                 }
             } else if (hoverNode) {
                 node.targetScale = 22;
-                node.targetOpacity = isHighlighted ? 1.0 : 0.5;
+                node.targetOpacity = isHighlighted ? 1.0 : 0.35;
             } else {
                 node.targetScale = 22;
                 node.targetOpacity = 0.9;
@@ -898,9 +876,9 @@
         // 2. Determine TARGETS for links
         links.forEach(link => {
             if (isCommunityHighlightActive) {
-                link.targetOpacity = highlightLinks.has(link) ? 0.9 : 0.3;
+                link.targetOpacity = highlightLinks.has(link) ? 0.9 : 0.15;
             } else if (hoverNode) {
-                link.targetOpacity = highlightLinks.has(link) ? 0.9 : 0.3;
+                link.targetOpacity = highlightLinks.has(link) ? 0.9 : 0.15;
             } else {
                 link.targetOpacity = 0.8;
             }
