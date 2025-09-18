@@ -63,6 +63,8 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
       transition: all 0.3s ease;
       transform-origin: top left;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
     }
 
     #menu.closed {
@@ -70,6 +72,7 @@
       padding: 16px 14px;
       flex-direction: row;
       align-items: center;
+      overflow-y: hidden;
     }
 
     #title-container {
@@ -82,7 +85,7 @@
     #menu.closed #title-container,
     #menu.closed #subtitle,
     #menu.closed #nav-box,
-    #menu.closed #community-section {
+   #menu.closed #community-section {
       display: none;
     }
 
@@ -148,7 +151,7 @@
       padding: 16px;
     }
 
-    #community-title, #search-title {
+    #community-title, #search-title, #cycle-title {
       font-size: 1.2rem;
       font-weight: 600;
       margin: 0 0 12px 0;
@@ -182,6 +185,80 @@
       background: var(--surface-2);
       color: var(--text-primary);
     }
+    
+    /* Timeline Controls */
+    #cycle-section {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99;
+      background: var(--surface-1);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    #cycle-section h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    #cycle-slider-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 0;
+      width: 220px;
+    }
+    #cycle-slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    #cycle-slider {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    #cycle-toggles-title {
+      display: none;
+    }
+
+    #cycle-toggles {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      border-left: 1px solid var(--border-color);
+      padding-left: 24px;
+    }
+
+    .cycle-toggle-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(0,0,0,0.2);
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .cycle-toggle-label:hover {
+        background: rgba(255,255,255,0.1);
+    }
+    .cycle-toggle-label input {
+        cursor: pointer;
+    }
+
 
     /* Search Section */
     .desktop-search {
@@ -488,6 +565,15 @@
     }
 
     /* Responsive improvements */
+    @media (max-width: 1200px) {
+      .desktop-search {
+        display: none;
+      }
+      #legend {
+        display: none !important;
+      }
+    }
+    
     @media (max-width: 768px) {
       #menu {
         width: calc(100vw - 32px);
@@ -500,15 +586,10 @@
         padding: 12px 10px;
         width: auto;
       }
-
-      .desktop-search {
+      
+      #cycle-section {
         display: none;
       }
-
-      #legend {
-        display: none !important;
-      }
-
 
       #breathing-toggle {
         bottom: 16px;
@@ -568,6 +649,21 @@
     </div>
   </nav>
 
+  <!-- NEW: Timeline Controls -->
+  <div id="cycle-section">
+      <h3>Timeline</h3>
+      <div id="cycle-slider-container">
+          <label id="cycle-slider-label" for="cycle-slider">
+              <span>View up to cycle:</span>
+              <span id="cycle-slider-value">All</span>
+          </label>
+          <input type="range" id="cycle-slider" min="0" max="1" value="1" step="1">
+      </div>
+      <div id="cycle-toggles">
+          <!-- Checkboxes will be dynamically inserted here -->
+      </div>
+  </div>
+
   <div class="desktop-search">
     <div class="search-box">
       <input type="text" class="search-input" placeholder="Search piece or artist...">
@@ -593,6 +689,10 @@
 
     // State
     let Graph;
+    // Master lists for all data
+    let allNodes = [];
+    let allLinks = [];
+    // These now represent the VISIBLE data
     let nodes = [];
     let links = [];
     let adjacencyMatrix = [];
@@ -654,13 +754,19 @@
             const tempCommunities = { author: {}, phase: {} };
             const uniqueAuthorsSet = new Set();
             const uniquePhases = new Set();
+            const uniqueCycles = new Set();
 
             // Build graph data
             const localNodes = Object.entries(verticesMap).map(([id, filename]) => {
                 const parts = filename.split('-');
+              const cycle = parseInt(parts[0], 10);
                 const phase = `Phase ${parts[0]}`;
                 const authorFromFile = (parts[1] || 'Unknown').replace(/_/g, ' ');
                 const author = artistNameMap[authorFromFile] || authorFromFile;
+              
+              if (!isNaN(cycle)) {
+                uniqueCycles.add(cycle);
+              }
 
                 uniqueAuthorsSet.add(author);
                 uniquePhases.add(phase);
@@ -673,6 +779,7 @@
 
                 return {
                     id: parseInt(id, 10),
+                    cycle,
                     img: `${filename}.jpeg`,
                     name: filename.replace(/_/g, ' '),
                     author,
@@ -737,18 +844,98 @@
                 }
             });
             
+            const sortedCycles = Array.from(uniqueCycles).sort((a,b) => a - b);
+            
             return { 
                 nodes: localNodes, 
                 links: localLinks, 
                 adjacencyMatrix: localAdjacencyMatrix,
                 communities: tempCommunities,
-                colors: tempColors
+                colors: tempColors,
+                uniqueCycles: sortedCycles,
+                maxCycle: Math.max(0, ...sortedCycles)
             };
         } catch (error) {
             console.error("Error loading graph:", error);
             document.getElementById('3d-graph').innerHTML = `<div style="color: #ff6b6b; padding: 40px; text-align: center; font-size: 1.2rem;"><h2>Failed to Load Organism</h2><p>${error.message}</p><p>Please check the console for more details.</p></div>`;
             return null;
         }
+    }
+
+    // Function to filter graph data based on timeline controls
+    function updateGraphData() {
+        const slider = document.getElementById('cycle-slider');
+        const maxVisibleCycle = parseInt(slider.value, 10);
+        
+        const toggles = document.querySelectorAll('#cycle-toggles input:checked');
+        const visibleCycles = new Set(Array.from(toggles).map(cb => parseInt(cb.value, 10)));
+
+        // Determine which nodes should be visible
+        const visibleNodeIds = new Set();
+        allNodes.forEach(node => {
+            if (node.cycle <= maxVisibleCycle && visibleCycles.has(node.cycle)) {
+                visibleNodeIds.add(node.id);
+            }
+        });
+
+        // Update the globally scoped 'nodes' and 'links' for other functions that rely on them
+        nodes = allNodes.filter(node => visibleNodeIds.has(node.id));
+        links = allLinks.filter(link => {
+            const sourceId = link.source.id ?? link.source;
+            const targetId = link.target.id ?? link.target;
+            return visibleNodeIds.has(sourceId) && visibleNodeIds.has(targetId);
+        });
+
+        // Update the graph's visibility without changing its underlying data
+        Graph.nodeVisibility(node => visibleNodeIds.has(node.id));
+        Graph.linkVisibility(link => {
+            const sourceId = link.source.id ?? link.source;
+            const targetId = link.target.id ?? link.target;
+            return visibleNodeIds.has(sourceId) && visibleNodeIds.has(targetId);
+        });
+    }
+
+
+    // Function to setup the timeline UI
+    function setupTimelineControls(uniqueCycles, maxCycle) {
+        const slider = document.getElementById('cycle-slider');
+        const sliderValueLabel = document.getElementById('cycle-slider-value');
+        const togglesContainer = document.getElementById('cycle-toggles');
+        
+        if (uniqueCycles.length === 0) {
+            document.getElementById('cycle-section').style.display = 'none';
+            return;
+        };
+        
+        const min = Math.min(...uniqueCycles);
+        
+        slider.min = min;
+        slider.max = maxCycle;
+        slider.value = maxCycle;
+        sliderValueLabel.textContent = `All (${maxCycle})`;
+
+        slider.addEventListener('input', () => {
+            sliderValueLabel.textContent = slider.value == maxCycle ? `All (${maxCycle})` : slider.value;
+            updateGraphData();
+        });
+
+        togglesContainer.innerHTML = '';
+        uniqueCycles.forEach(cycle => {
+            const label = document.createElement('label');
+            label.className = 'cycle-toggle-label';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = cycle;
+            checkbox.checked = true;
+            checkbox.addEventListener('change', updateGraphData);
+            
+            const text = document.createTextNode(` ${cycle}`);
+            
+            label.appendChild(checkbox);
+            label.appendChild(text);
+            togglesContainer.appendChild(label);
+        });
     }
 
     // Helper functions
@@ -775,7 +962,8 @@
 
     function getLinkColor(link) {
         if (highlightLinks.has(link)) return '#7ED377';
-        if (currentCommunityView === 'none' || !link.source.id || !link.target.id) return '#7db8a8';
+        // Ensure source/target are objects before accessing id
+        if (currentCommunityView === 'none' || typeof link.source !== 'object' || typeof link.target !== 'object' || !link.source.id || !link.target.id) return '#7db8a8';
 
         const communityData = communities[currentCommunityView];
         const colorData = colors[currentCommunityView];
@@ -821,7 +1009,7 @@
                                 highresTextures.set(node.id, highResTexture);
                                 node.textureState = 'highres';
                             } else {
-                               highResTexture.dispose();
+                              highResTexture.dispose();
                             }
                         },
                         undefined,
@@ -930,7 +1118,7 @@
     // Initialize graph
     function initGraph() {
       Graph = ForceGraph3D()(document.getElementById('3d-graph'))
-        .graphData({ nodes, links })
+        .graphData({ nodes: allNodes, links: allLinks })
         .backgroundColor('rgba(0,0,0,0)')
         .nodeThreeObject(node => {
             const currentNode = { ...node };
@@ -1046,7 +1234,7 @@
         })
         .onEngineStop(() => {
             console.log("Force engine stopped. Capturing natural positions.");
-            nodes.forEach(node => {
+            allNodes.forEach(node => {
                 node.naturalX = node.x;
                 node.naturalY = node.y;
                 node.naturalZ = node.z;
@@ -1196,7 +1384,7 @@
       if (e.key === 'Escape') {
         const menu = document.getElementById('menu');
         if (!menu.classList.contains('closed')) {
-           document.getElementById('toggle-btn').click();
+          document.getElementById('toggle-btn').click();
         }
         closeAllAutocompletes();
       }
@@ -1359,21 +1547,31 @@
     async function main() {
         const menu = document.getElementById('menu');
         const toggleBtn = document.getElementById('toggle-btn');
-        if (window.innerWidth <= 768) {
-            menu.classList.add('closed');
-            toggleBtn.textContent = '☰';
+        
+        // Default menu to closed on smaller windows on page load
+        if (window.innerWidth <= 1200) {
+          menu.classList.add('closed');
+          toggleBtn.textContent = '☰';
         } else {
-            toggleBtn.textContent = '×';
+          toggleBtn.textContent = '×';
         }
         
         const graphData = await loadAndProcessGraphData();
         if (graphData) {
-            nodes = graphData.nodes;
-            links = graphData.links;
+            // Set the master lists
+            allNodes = graphData.nodes;
+            allLinks = graphData.links;
+            
+            // Initially, the visible data is all the data
+            nodes = [...allNodes];
+            links = [...allLinks];
+
             adjacencyMatrix = graphData.adjacencyMatrix;
             communities = graphData.communities;
             colors = graphData.colors;
+
             initGraph();
+            setupTimelineControls(graphData.uniqueCycles, graphData.maxCycle);
             startRenderLoop();
         }
     }
