@@ -56,6 +56,8 @@
       border-radius: 12px;
       padding: 20px 26px;
       width: 420px;
+      /* FIX: Added max-width to prevent overflow on narrow viewports */
+      max-width: calc(100vw - 40px);
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -85,7 +87,8 @@
     #menu.closed #title-container,
     #menu.closed #subtitle,
     #menu.closed #nav-box,
-   #menu.closed #community-section {
+   #menu.closed .mobile-search, /* Hide mobile search when menu is closed */
+    #menu.closed #community-section {
       display: none;
     }
 
@@ -143,7 +146,7 @@
       transform: translateX(2px);
     }
     
-    /* Community & Mobile Search */
+    /* Community Section */
     #community-section {
       background: rgba(0, 0, 0, 0.15);
       border: 1px solid rgba(255, 255, 255, 0.05);
@@ -261,12 +264,35 @@
 
 
     /* Search Section */
+    /* This is the search bar for desktop screens */
     .desktop-search {
         position: fixed;
         top: 20px;
         right: 20px;
         z-index: 100;
         width: 300px;
+    }
+
+    /* This is the search bar for mobile, inside the menu */
+    .mobile-search {
+        display: none;
+    }
+
+    /* Styles to make the mobile search box blend into the menu */
+    .mobile-search .search-box {
+        background: rgba(0, 0, 0, 0.15);
+        backdrop-filter: none;
+        box-shadow: none;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 6px;
+        border-radius: 8px;
+    }
+     .mobile-search .search-input {
+        padding: 8px 10px;
+    }
+    .mobile-search .search-btn, .mobile-search .random-btn {
+        width: 34px;
+        height: 34px;
     }
 
     .search-box {
@@ -567,7 +593,10 @@
     /* Responsive improvements */
     @media (max-width: 1200px) {
       .desktop-search {
-        display: none;
+        display: none; /* Hide desktop search */
+      }
+      .mobile-search {
+        display: block; /* Show mobile search */
       }
       #legend {
         display: none !important;
@@ -577,9 +606,12 @@
     @media (max-width: 768px) {
       #menu {
         width: calc(100vw - 32px);
+        /* FIX: Added max-width and adjusted max-height */
+        max-width: calc(100vw - 32px);
         padding: 16px 20px;
         top: 16px;
         left: 16px;
+        max-height: calc(100vh - 32px);
       }
 
       #menu.closed {
@@ -635,6 +667,15 @@
         <li><a href="https://phileasdg.github.io/sympoietic/artists.html">About</a></li>
       </ul>
     </div>
+    <!-- ADDED: Mobile-specific search bar inside the menu -->
+    <div class="mobile-search">
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="Search piece or artist...">
+            <button class="search-btn" aria-label="Search">🔍</button>
+            <button class="random-btn" aria-label="Jump to random node">🎲</button>
+            <div class="autocomplete-results"></div>
+        </div>
+    </div>
     <div id="community-section">
         <h3 id="community-title">Community View</h3>
         <select id="community-select">
@@ -664,6 +705,7 @@
       </div>
   </div>
 
+  <!-- This search bar is now only for desktop -->
   <div class="desktop-search">
     <div class="search-box">
       <input type="text" class="search-input" placeholder="Search piece or artist...">
@@ -763,7 +805,7 @@
                 const phase = `Phase ${parts[0]}`;
                 const authorFromFile = (parts[1] || 'Unknown').replace(/_/g, ' ');
                 const author = artistNameMap[authorFromFile] || authorFromFile;
-              
+                
               if (!isNaN(cycle)) {
                 uniqueCycles.add(cycle);
               }
@@ -979,7 +1021,7 @@
                 return sourceCommunity === targetCommunity ? colorData[sourceCommunity] : '#FFA726'; // Orange for inter-community links
             }
         }
-      
+       
       return '#7db8a8';
     }
 
