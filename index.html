@@ -56,7 +56,6 @@
       border-radius: 12px;
       padding: 20px 26px;
       width: 420px;
-      /* FIX: Added max-width to prevent overflow on narrow viewports */
       max-width: calc(100vw - 40px);
       display: flex;
       flex-direction: column;
@@ -87,7 +86,6 @@
     #menu.closed #title-container,
     #menu.closed #subtitle,
     #menu.closed #nav-box,
-   #menu.closed .mobile-search, /* Hide mobile search when menu is closed */
     #menu.closed #community-section {
       display: none;
     }
@@ -273,35 +271,13 @@
         width: 300px;
     }
 
-    /* This is the search bar for mobile, inside the menu */
-    .mobile-search {
-        display: none;
-    }
-
-    /* Styles to make the mobile search box blend into the menu */
-    .mobile-search .search-box {
-        background: rgba(0, 0, 0, 0.15);
-        backdrop-filter: none;
-        box-shadow: none;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        padding: 6px;
-        border-radius: 8px;
-    }
-     .mobile-search .search-input {
-        padding: 8px 10px;
-    }
-    .mobile-search .search-btn, .mobile-search .random-btn {
-        width: 34px;
-        height: 34px;
-    }
-
     .search-box {
         position: relative;
         display: flex;
         align-items: center;
         gap: 4px;
         transition: border-color 0.3s ease;
-        border: 1px solid transparent;
+        border: 1px solid var(--border-color);
         border-radius: 12px;
         background: var(--surface-1);
         backdrop-filter: blur(12px);
@@ -339,6 +315,7 @@
       border: none;
       color: var(--text-secondary);
       border-radius: 8px;
+      cursor: pointer;
     }
     .search-btn:hover, .random-btn:hover {
         background: rgba(255, 255, 255, 0.1);
@@ -384,6 +361,73 @@
         color: var(--accent-dark);
     }
 
+    /* NEW: Mobile Search Trigger & Overlay */
+    #mobile-search-trigger {
+        display: none;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 101;
+        background: var(--surface-1);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        font-size: 1.4rem;
+        color: var(--text-primary);
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    #mobile-search-trigger:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    #search-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 20, 25, 0.8);
+        backdrop-filter: blur(10px);
+        z-index: 200;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 15vh 20px 20px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    #search-overlay.visible {
+        display: flex;
+        opacity: 1;
+    }
+    #search-overlay .search-box {
+        width: 100%;
+        max-width: 500px;
+        border-color: var(--border-color);
+    }
+    #close-search-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 2.5rem;
+        line-height: 1;
+        font-weight: 200;
+        color: var(--text-secondary);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+    }
+    #close-search-btn:hover {
+        color: var(--text-primary);
+    }
 
     #title-vertical {
       display: none;
@@ -444,6 +488,7 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
+      padding: 0;
     }
 
     #menu.closed #copy-btn {
@@ -595,8 +640,8 @@
       .desktop-search {
         display: none; /* Hide desktop search */
       }
-      .mobile-search {
-        display: block; /* Show mobile search */
+      #mobile-search-trigger {
+        display: flex; /* Show mobile search trigger */
       }
       #legend {
         display: none !important;
@@ -606,7 +651,6 @@
     @media (max-width: 768px) {
       #menu {
         width: calc(100vw - 32px);
-        /* FIX: Added max-width and adjusted max-height */
         max-width: calc(100vw - 32px);
         padding: 16px 20px;
         top: 16px;
@@ -619,6 +663,11 @@
         width: auto;
       }
       
+      #mobile-search-trigger {
+        top: 16px;
+        right: 16px;
+      }
+
       #cycle-section {
         display: none;
       }
@@ -667,15 +716,7 @@
         <li><a href="https://phileasdg.github.io/sympoietic/artists.html">About</a></li>
       </ul>
     </div>
-    <!-- ADDED: Mobile-specific search bar inside the menu -->
-    <div class="mobile-search">
-        <div class="search-box">
-            <input type="text" class="search-input" placeholder="Search piece or artist...">
-            <button class="search-btn" aria-label="Search">🔍</button>
-            <button class="random-btn" aria-label="Jump to random node">🎲</button>
-            <div class="autocomplete-results"></div>
-        </div>
-    </div>
+    <!-- REMOVED: Mobile-specific search bar from inside the menu -->
     <div id="community-section">
         <h3 id="community-title">Community View</h3>
         <select id="community-select">
@@ -714,6 +755,21 @@
       <div class="autocomplete-results"></div>
     </div>
   </div>
+  
+  <!-- NEW: Mobile Search Trigger Button -->
+  <button id="mobile-search-trigger" aria-label="Open search">🔍</button>
+
+  <!-- NEW: Search Overlay for mobile -->
+  <div id="search-overlay">
+      <button id="close-search-btn" aria-label="Close search">&times;</button>
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="Search piece or artist...">
+        <button class="search-btn" aria-label="Search">🔍</button>
+        <button class="random-btn" aria-label="Jump to random node">🎲</button>
+        <div class="autocomplete-results"></div>
+      </div>
+  </div>
+
 
   <div id="copy-confirmation" role="alert" aria-live="polite">Copied!</div>
   <div id="legend">
@@ -1021,8 +1077,8 @@
                 return sourceCommunity === targetCommunity ? colorData[sourceCommunity] : '#FFA726'; // Orange for inter-community links
             }
         }
-       
-      return '#7db8a8';
+        
+       return '#7db8a8';
     }
 
     // Dynamic Texture Loading System
@@ -1422,11 +1478,28 @@
       setTimeout(() => confirm.classList.remove('visible'), 2000);
     });
 
+    // NEW: Listeners for mobile search overlay
+    const searchOverlay = document.getElementById('search-overlay');
+    const mobileSearchTrigger = document.getElementById('mobile-search-trigger');
+    const closeSearchBtn = document.getElementById('close-search-btn');
+
+    mobileSearchTrigger.addEventListener('click', () => {
+        searchOverlay.classList.add('visible');
+        searchOverlay.querySelector('.search-input').focus();
+    });
+
+    closeSearchBtn.addEventListener('click', () => {
+        searchOverlay.classList.remove('visible');
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const menu = document.getElementById('menu');
         if (!menu.classList.contains('closed')) {
           document.getElementById('toggle-btn').click();
+        }
+        if (searchOverlay.classList.contains('visible')) {
+            searchOverlay.classList.remove('visible');
         }
         closeAllAutocompletes();
       }
@@ -1487,6 +1560,7 @@
                     }
                 });
                 closeAllAutocompletes();
+                searchOverlay.classList.remove('visible'); // Close overlay on success
                 return;
             }
 
@@ -1494,6 +1568,7 @@
             if(nodeByName){
                 focusOnNode(nodeByName);
                 closeAllAutocompletes();
+                searchOverlay.classList.remove('visible'); // Close overlay on success
                 return;
             }
 
@@ -1501,6 +1576,7 @@
             if(nodeById){
                 focusOnNode(nodeById);
                 closeAllAutocompletes();
+                searchOverlay.classList.remove('visible'); // Close overlay on success
                 return;
             }
             
@@ -1575,6 +1651,7 @@
                 const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
                 if (randomNode) panToNode(randomNode);
                 document.querySelectorAll('.search-input').forEach(input => input.value = '');
+                searchOverlay.classList.remove('visible'); // Close overlay
             }
         });
     });
