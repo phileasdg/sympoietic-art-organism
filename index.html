@@ -362,72 +362,7 @@
     }
 
     /* NEW: Mobile Search Trigger & Overlay */
-    #mobile-search-trigger {
-        display: none;
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 101;
-        background: var(--surface-1);
-        backdrop-filter: blur(12px);
-        border: 1px solid var(--border-color);
-        border-radius: 50%;
-        width: 44px;
-        height: 44px;
-        font-size: 1.4rem;
-        color: var(--text-primary);
-        cursor: pointer;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-    }
-    #mobile-search-trigger:hover {
-        border-color: var(--accent);
-        color: var(--accent);
-    }
-
-    #search-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(15, 20, 25, 0.8);
-        backdrop-filter: blur(10px);
-        z-index: 200;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        padding: 15vh 20px 20px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    #search-overlay.visible {
-        display: flex;
-        opacity: 1;
-    }
-    #search-overlay .search-box {
-        width: 100%;
-        max-width: 500px;
-        border-color: var(--border-color);
-    }
-    #close-search-btn {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        font-size: 2.5rem;
-        line-height: 1;
-        font-weight: 200;
-        color: var(--text-secondary);
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        padding: 10px;
-    }
-    #close-search-btn:hover {
-        color: var(--text-primary);
-    }
+    /* REMOVED mobile search CSS */
 
     #title-vertical {
       display: none;
@@ -640,9 +575,7 @@
       .desktop-search {
         display: none; /* Hide desktop search */
       }
-      #mobile-search-trigger {
-        display: flex; /* Show mobile search trigger */
-      }
+      /* REMOVED mobile-search-trigger display rule */
       #legend {
         display: none !important;
       }
@@ -663,10 +596,7 @@
         width: auto;
       }
       
-      #mobile-search-trigger {
-        top: 16px;
-        right: 16px;
-      }
+      /* REMOVED mobile-search-trigger position rule */
 
       #cycle-section {
         display: none;
@@ -756,19 +686,7 @@
     </div>
   </div>
   
-  <!-- NEW: Mobile Search Trigger Button -->
-  <button id="mobile-search-trigger" aria-label="Open search">🔍</button>
-
-  <!-- NEW: Search Overlay for mobile -->
-  <div id="search-overlay">
-      <button id="close-search-btn" aria-label="Close search">&times;</button>
-      <div class="search-box">
-        <input type="text" class="search-input" placeholder="Search piece or artist...">
-        <button class="search-btn" aria-label="Search">🔍</button>
-        <button class="random-btn" aria-label="Jump to random node">🎲</button>
-        <div class="autocomplete-results"></div>
-      </div>
-  </div>
+  <!-- REMOVED Mobile Search Trigger Button and Search Overlay HTML -->
 
 
   <div id="copy-confirmation" role="alert" aria-live="polite">Copied!</div>
@@ -1478,28 +1396,13 @@
       setTimeout(() => confirm.classList.remove('visible'), 2000);
     });
 
-    // NEW: Listeners for mobile search overlay
-    const searchOverlay = document.getElementById('search-overlay');
-    const mobileSearchTrigger = document.getElementById('mobile-search-trigger');
-    const closeSearchBtn = document.getElementById('close-search-btn');
-
-    mobileSearchTrigger.addEventListener('click', () => {
-        searchOverlay.classList.add('visible');
-        searchOverlay.querySelector('.search-input').focus();
-    });
-
-    closeSearchBtn.addEventListener('click', () => {
-        searchOverlay.classList.remove('visible');
-    });
+    // REMOVED Listeners for mobile search overlay
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const menu = document.getElementById('menu');
         if (!menu.classList.contains('closed')) {
           document.getElementById('toggle-btn').click();
-        }
-        if (searchOverlay.classList.contains('visible')) {
-            searchOverlay.classList.remove('visible');
         }
         closeAllAutocompletes();
       }
@@ -1560,7 +1463,6 @@
                     }
                 });
                 closeAllAutocompletes();
-                searchOverlay.classList.remove('visible'); // Close overlay on success
                 return;
             }
 
@@ -1568,7 +1470,6 @@
             if(nodeByName){
                 focusOnNode(nodeByName);
                 closeAllAutocompletes();
-                searchOverlay.classList.remove('visible'); // Close overlay on success
                 return;
             }
 
@@ -1576,7 +1477,6 @@
             if(nodeById){
                 focusOnNode(nodeById);
                 closeAllAutocompletes();
-                searchOverlay.classList.remove('visible'); // Close overlay on success
                 return;
             }
             
@@ -1651,7 +1551,6 @@
                 const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
                 if (randomNode) panToNode(randomNode);
                 document.querySelectorAll('.search-input').forEach(input => input.value = '');
-                searchOverlay.classList.remove('visible'); // Close overlay
             }
         });
     });
