@@ -30,6 +30,19 @@
       --border-color: rgba(255, 255, 255, 0.1);
       --accent: #7db8a8;
       --accent-dark: #1a2a2e;
+      --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+    }
+
+    body.light-mode {
+      --text-primary: #101011;
+      --text-secondary: #5e666e;
+      --bg-dark: #f8fafc;
+      --surface-1: rgba(255, 255, 255, 0.85);
+      --surface-2: rgba(241, 245, 249, 0.95);
+      --border-color: rgba(0, 0, 0, 0.08);
+      --accent: #17bfa3;
+      --accent-dark: #ffffff;
+      --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     }
 
     * {
@@ -53,21 +66,21 @@
       background: var(--surface-1);
       backdrop-filter: blur(12px);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 20px 26px;
+      border-radius: 0px;
+      padding: 24px 30px;
       width: 420px;
       max-width: calc(100vw - 40px);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
       z-index: 100;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      box-shadow: var(--box-shadow);
       transition: all 0.3s ease;
       transform-origin: top left;
       max-height: calc(100vh - 40px);
       overflow-y: auto;
     }
-
+    
     #menu.closed {
       width: auto;
       padding: 16px 14px;
@@ -79,7 +92,6 @@
     #title-container {
       display: flex;
       flex-direction: column;
-      gap: 10px;
       flex-grow: 1;
     }
 
@@ -91,12 +103,16 @@
     }
 
     #title {
-      font-size: 1.8rem;
-      font-weight: 600;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       margin: 0;
       color: var(--text-primary);
       text-decoration: none;
       transition: color 0.2s ease;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 14px;
     }
 
     #title:hover {
@@ -104,18 +120,22 @@
     }
 
     #subtitle {
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       line-height: 1.6;
-      opacity: 0.85;
       color: var(--text-secondary);
-      margin: 0;
+      margin: 12px 0 0 0;
     }
 
     #nav-box {
-      background: rgba(0, 0, 0, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      padding: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      border-left: none;
+      border-right: none;
+      border-radius: 0px;
+      padding: 16px 30px;
+      margin-left: -30px;
+      margin-right: -30px;
     }
 
     nav ul {
@@ -124,46 +144,75 @@
       padding: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 12px;
     }
 
     nav ul li a {
-      color: var(--text-primary);
+      color: var(--text-secondary);
       text-decoration: none;
-      font-weight: 500;
-      font-size: 1.05rem;
-      padding: 10px 16px;
-      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 6px 0;
       display: block;
-      transition: all 0.2s ease;
+      transition: color 0.2s ease;
+      position: relative;
+    }
+
+    nav ul li a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.2s ease;
+    }
+
+    nav ul li a:hover,
+    nav ul li a.active {
+      color: var(--accent) !important;
+      background: transparent !important;
+    }
+
+    nav ul li a:hover::after,
+    nav ul li a.active::after {
+      width: 24px;
     }
 
     nav ul li a:hover {
-      background: var(--accent);
-      color: var(--accent-dark);
-      transform: translateX(2px);
+      transform: none;
     }
     
     /* Community Section */
     #community-section {
-      background: rgba(0, 0, 0, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      padding: 16px;
+      background: rgba(0, 0, 0, 0.05);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      border-left: none;
+      border-right: none;
+      border-radius: 0px;
+      padding: 16px 30px;
+      margin-left: -30px;
+      margin-right: -30px;
     }
 
     #community-title, #search-title, #cycle-title {
-      font-size: 1.2rem;
-      font-weight: 600;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       margin: 0 0 12px 0;
-      color: var(--text-primary);
+      color: var(--text-secondary);
     }
 
     #community-select {
       width: 100%;
       background: rgba(0, 0, 0, 0.2);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 0px;
       color: var(--text-primary);
       padding: 12px 16px;
       font-size: 0.95rem;
@@ -171,6 +220,10 @@
       font-family: inherit;
       cursor: pointer;
       transition: all 0.2s ease;
+    }
+    #community-select option {
+      background: var(--surface-1);
+      color: var(--text-primary);
     }
 
     #community-select:hover {
@@ -197,9 +250,9 @@
       background: var(--surface-1);
       backdrop-filter: blur(12px);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: 0px;
       padding: 12px 24px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      box-shadow: var(--box-shadow);
       display: flex;
       align-items: center;
       gap: 24px;
@@ -207,9 +260,12 @@
     
     #cycle-section h3 {
       margin: 0;
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       white-space: nowrap;
+      color: var(--text-secondary);
     }
 
     #cycle-slider-container {
@@ -248,7 +304,7 @@
         gap: 8px;
         background: rgba(0,0,0,0.2);
         padding: 6px 10px;
-        border-radius: 6px;
+        border-radius: 0px;
         font-size: 0.9rem;
         cursor: pointer;
         transition: background-color 0.2s;
@@ -278,10 +334,10 @@
         gap: 4px;
         transition: border-color 0.3s ease;
         border: 1px solid var(--border-color);
-        border-radius: 12px;
+        border-radius: 0px;
         background: var(--surface-1);
         backdrop-filter: blur(12px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
         padding: 4px;
     }
     .search-box:focus-within {
@@ -314,7 +370,7 @@
       background: transparent;
       border: none;
       color: var(--text-secondary);
-      border-radius: 8px;
+      border-radius: 4px;
       cursor: pointer;
     }
     .search-btn:hover, .random-btn:hover {
@@ -331,11 +387,11 @@
         background: var(--surface-2);
         backdrop-filter: blur(12px);
         border: 1px solid var(--border-color);
-        border-radius: 12px;
+        border-radius: 0px;
         max-height: 220px;
         overflow-y: auto;
         z-index: 999;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.08);
     }
 
     .autocomplete-item {
@@ -345,6 +401,7 @@
         transition: all 0.2s ease;
         font-size: 0.9rem;
         border-bottom: 1px solid var(--border-color);
+        border-radius: 0px;
     }
     .autocomplete-item:last-child {
         border-bottom: none;
@@ -394,7 +451,7 @@
     button {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 4px;
       color: var(--text-secondary);
       cursor: pointer;
       padding: 12px 20px;
@@ -407,7 +464,7 @@
       background: var(--accent);
       color: var(--accent-dark);
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       border-color: var(--accent);
     }
 
@@ -422,7 +479,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
+      border-radius: 6px;
       padding: 0;
     }
 
@@ -433,7 +490,7 @@
       writing-mode: vertical-rl;
       text-orientation: mixed;
       font-size: 0.9rem;
-      border-radius: 10px;
+      border-radius: 6px;
     }
 
     /* Copy confirmation */
@@ -445,7 +502,7 @@
       background: var(--accent);
       color: var(--accent-dark);
       padding: 12px 24px;
-      border-radius: 8px;
+      border-radius: 0px;
       font-weight: 600;
       font-size: 0.95rem;
       opacity: 0;
@@ -488,10 +545,10 @@
       background: var(--surface-1);
       backdrop-filter: blur(12px);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: 0px;
       padding: 16px 20px;
       z-index: 99;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      box-shadow: var(--box-shadow);
       transition: all 0.3s ease;
       max-width: 220px;
       display: none;
@@ -502,10 +559,14 @@
     }
 
     #legend-title {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       margin: 0 0 12px 0;
-      color: var(--text-primary);
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
     }
 
     .legend-item {
@@ -515,7 +576,7 @@
       margin-bottom: 8px;
       font-size: 0.9rem;
       padding: 4px;
-      border-radius: 4px;
+      border-radius: 0px;
       transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
     }
 
@@ -544,14 +605,14 @@
       background: var(--surface-1);
       backdrop-filter: blur(12px);
       border: 1px solid var(--border-color);
-      border-radius: 50%;
+      border-radius: 6px;
       width: 56px;
       height: 56px;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 100;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+      box-shadow: var(--box-shadow);
       cursor: pointer;
       transition: all 0.3s ease;
       font-size: 1.5rem;
@@ -561,13 +622,13 @@
     #breathing-toggle:hover {
       transform: scale(1.05);
       border-color: var(--accent);
-      box-shadow: 0 0 20px rgba(125, 184, 168, 0.2);
+      box-shadow: 0 0 20px rgba(23, 191, 163, 0.15);
     }
 
     #breathing-toggle.active {
       background: var(--accent);
       color: var(--accent-dark);
-      box-shadow: 0 0 20px rgba(125, 184, 168, 0.4);
+      box-shadow: 0 0 20px rgba(23, 191, 163, 0.3);
     }
 
     /* Responsive improvements */
@@ -627,23 +688,324 @@
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
+
+    /* Light Mode Overrides */
+    body.light-mode #nav-box {
+      background: rgba(0, 0, 0, 0.02);
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      border-left: none;
+      border-right: none;
+    }
+    body.light-mode #community-section {
+      background: rgba(0, 0, 0, 0.02);
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      border-left: none;
+      border-right: none;
+    }
+    body.light-mode #community-select {
+      background: #ffffff;
+      border-color: var(--border-color);
+      color: #000000;
+    }
+    body.light-mode #community-select option {
+      background: #ffffff;
+      color: #000000;
+    }
+    body.light-mode #community-select:hover {
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+    body.light-mode .cycle-toggle-label {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    body.light-mode .cycle-toggle-label:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+    body.light-mode button {
+      background: rgba(0, 0, 0, 0.03);
+    }
+    body.light-mode #graph-overlay {
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0) 50%, rgba(220, 225, 230, 0.35) 100%);
+    }
+    body.light-mode #breathing-toggle:hover {
+      box-shadow: 0 0 20px rgba(23, 191, 163, 0.15);
+    }
+    body.light-mode #breathing-toggle.active {
+      box-shadow: 0 0 20px rgba(23, 191, 163, 0.3);
+    }
+    body.light-mode #theme-toggle:hover {
+      box-shadow: 0 0 20px rgba(23, 191, 163, 0.15);
+    }
+
+    #theme-toggle .moon-icon {
+      display: none;
+    }
+    #theme-toggle .sun-icon {
+      display: block;
+    }
+    body.light-mode #theme-toggle .sun-icon {
+      display: none;
+    }
+    body.light-mode #theme-toggle .moon-icon {
+      display: block;
+    }
+
+    /* Theme Toggle Button styling */
+    #theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 90px;
+      background: var(--surface-1);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      box-shadow: var(--box-shadow);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+    #theme-toggle:hover {
+      transform: scale(1.05);
+      border-color: var(--accent);
+    }
+    @media (max-width: 768px) {
+      #theme-toggle {
+        bottom: 16px;
+        right: 76px;
+        width: 48px;
+        height: 48px;
+        font-size: 1.3rem;
+      }
+    }
+    /* Node Details Panel Styles */
+    #node-details-panel {
+      position: fixed;
+      top: 20px;
+      right: -460px; /* Hidden by default */
+      background: var(--surface-1);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 0px;
+      padding: 24px 30px;
+      width: 420px;
+      max-width: calc(100vw - 40px);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 1000; /* Higher than other overlays */
+      box-shadow: var(--box-shadow);
+      transition: right 0.3s ease;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      color: var(--text-primary);
+    }
+
+    #node-details-panel.open {
+      right: 20px;
+    }
+
+    .panel-close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .panel-close-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .panel-header-img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      border-radius: 0px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-color);
+    }
+
+    .panel-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 10px 0 4px 0;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    .panel-author {
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin: 0 0 10px 0;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .panel-meta-row {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 0;
+      margin: 8px 0;
+      font-size: 0.85rem;
+    }
+
+    .panel-meta-label {
+      color: var(--text-secondary);
+    }
+
+    .panel-meta-value {
+      font-weight: 500;
+    }
+
+    .panel-section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin: 12px 0 6px 0;
+    }
+
+    .panel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 0px;
+      padding: 6px;
+      background: var(--surface-2);
+    }
+
+    .panel-list-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px;
+      border-radius: 0px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .panel-list-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    body.light-mode .panel-list-item:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .panel-list-img {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 0px;
+      border: 1px solid var(--border-color);
+      background: #000;
+    }
+
+    .panel-list-info {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-grow: 1;
+    }
+
+    .panel-list-title {
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      color: var(--text-primary);
+    }
+
+    .panel-list-author {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .panel-list-empty {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .panel-btn {
+      background: var(--accent);
+      color: var(--accent-dark);
+      border: none;
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: opacity 0.2s ease;
+      font-size: 0.85rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .panel-btn:hover {
+      opacity: 0.9;
+    }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/3d-force-graph"></script>
+  <script>
+    (function() {
+      var stored = localStorage.getItem('sao-theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      // Default to dark (site's native mode) unless system is light or user chose light
+      var useLight = stored ? (stored === 'light') : !prefersDark;
+      if (useLight) {
+        document.documentElement.classList.add('light-init');
+        document.addEventListener('DOMContentLoaded', function() {
+          document.body.classList.add('light-mode');
+          document.documentElement.classList.remove('light-init');
+        });
+      }
+    })();
+  </script>
 </head>
 
 <body>
   <nav id="menu">
     <div id="title-container">
-      <a href="https://phileasdg.github.io/sympoietic/" id="title">Sympoietic Art Organism</a>
+      <a href="../sympoietic/index.html" id="title">Sympoietic Art Organism</a>
       <p id="subtitle">This project aims to grow a sympoietic art organism. To cultivate an art ecosystem by drawing from and enriching shared artistic commons. To showcase art that mixes media and visions, that brings out the analog from digital, and digitizes the analog.</p>
     </div>
     <div id="title-vertical">Sympoietic Art Organism</div>
     <div id="nav-box">
       <ul>
-        <li><a href="https://phileasdg.github.io/sympoietic/manifesto.html">Artist Reflections</a></li>
-        <li><a href="https://phileasdg.github.io/sympoietic/digital-gallery.html">Galleries</a></li>
-        <li><a href="https://phileasdg.github.io/sympoietic/about.html">About This Project</a></li>
+        <li><a href="../sympoietic/index.html">Digital Gallery</a></li>
+        <li><a href="./index.html" class="active">Network</a></li>
+        <li><a href="../sympoietic/research.html">Research</a></li>
+        <li><a href="../sympoietic/about.html">About</a></li>
       </ul>
     </div>
     <!-- REMOVED: Mobile-specific search bar from inside the menu -->
@@ -694,11 +1056,21 @@
     <h4 id="legend-title">Communities</h4>
     <div id="legend-items"></div>
   </div>
+  <div id="theme-toggle" title="Switch to light mode" aria-label="Switch to light mode">
+    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+  </div>
   <div id="breathing-toggle" title="Toggle organism breathing" aria-label="Toggle breathing animation">
     💨
   </div>
   <div id="3d-graph"></div>
   <div id="graph-overlay"></div>
+  
+  <!-- Node Details Panel -->
+  <div id="node-details-panel">
+    <button class="panel-close-btn" id="panel-close-btn">&times;</button>
+    <div id="panel-content"></div>
+  </div>
 
   <script type="module">
     import * as THREE from 'https://esm.sh/three';
@@ -725,6 +1097,8 @@
     const highlightNodes = new Set();
     const highlightLinks = new Set();
     const nodeSprites = new Map();
+    let selectedNode = null;
+    let isLocalFilterActive = false;
     const proximityThreshold = 100; // Distance to trigger high-res load
     const thumbnailTextures = new Map();
     const highresTextures = new Map();
@@ -977,9 +1351,13 @@
     }
 
     function getLinkColor(link) {
-        if (highlightLinks.has(link)) return '#7ED377';
+        const isLight = document.body.classList.contains('light-mode');
+        const highlightColor = isLight ? '#17bfa3' : '#7ED377';
+        const defaultColor = isLight ? '#a6dcd2' : '#7db8a8';
+
+        if (highlightLinks.has(link)) return highlightColor;
         // Ensure source/target are objects before accessing id
-        if (currentCommunityView === 'none' || typeof link.source !== 'object' || typeof link.target !== 'object' || !link.source.id || !link.target.id) return '#7db8a8';
+        if (currentCommunityView === 'none' || typeof link.source !== 'object' || typeof link.target !== 'object' || !link.source.id || !link.target.id) return defaultColor;
 
         const communityData = communities[currentCommunityView];
         const colorData = colors[currentCommunityView];
@@ -996,7 +1374,7 @@
             }
         }
         
-       return '#7db8a8';
+       return defaultColor;
     }
 
     // Dynamic Texture Loading System
@@ -1068,9 +1446,9 @@
                     node.targetScale = 18;
                     node.targetOpacity = 0.3; 
                 }
-            } else if (hoverNode) {
-                node.targetScale = 22;
-                node.targetOpacity = isHighlighted ? 1.0 : 0.35;
+            } else if (hoverNode || selectedNode) {
+                node.targetScale = (selectedNode === node || hoverNode === node) ? 30 : 22;
+                node.targetOpacity = isHighlighted ? 1.0 : 0.25;
             } else {
                 node.targetScale = 22;
                 node.targetOpacity = 0.9;
@@ -1081,8 +1459,8 @@
         links.forEach(link => {
             if (isCommunityHighlightActive) {
                 link.targetOpacity = highlightLinks.has(link) ? 0.9 : 0.15;
-            } else if (hoverNode) {
-                link.targetOpacity = highlightLinks.has(link) ? 0.9 : 0.15;
+            } else if (hoverNode || selectedNode) {
+                link.targetOpacity = highlightLinks.has(link) ? 0.9 : 0.12;
             } else {
                 link.targetOpacity = 0.8;
             }
@@ -1205,7 +1583,7 @@
           if (currentCommunityView !== 'none') {
               communityInfo = `<br><small>${node[currentCommunityView]}</small>`;
           }
-          return `<div style="background: rgba(0,0,0,0.8); padding: 8px 12px; border-radius: 6px; color: var(--text-primary); font-size: 12px; font-weight: 500;">${fileName}${communityInfo}</div>`;
+          return `<div style="background: var(--surface-2); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 0px; color: var(--text-primary); font-size: 12px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">${fileName}${communityInfo}</div>`;
         })
         .onNodeHover(node => {
           if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return;
@@ -1220,6 +1598,10 @@
             highlightNodes.add(node);
             node.neighbors.forEach(n => highlightNodes.add(n));
             node.links.forEach(l => highlightLinks.add(l));
+          } else if (selectedNode) {
+            highlightNodes.add(selectedNode);
+            selectedNode.neighbors.forEach(n => highlightNodes.add(n));
+            selectedNode.links.forEach(l => highlightLinks.add(l));
           }
 
           hoverNode = node || null;
@@ -1240,13 +1622,21 @@
         .onNodeClick(node => {
           if (!node) return;
           const distance = 60;
-          const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+          const x = node.x || 0;
+          const y = node.y || 0;
+          const z = node.z || 0;
+          const hyp = Math.hypot(x, y, z) || 1e-6;
+          const distRatio = 1 + distance / hyp;
           const newPos = {
-            x: node.x * distRatio,
-            y: node.y * distRatio,
-            z: node.z * distRatio
+            x: x * distRatio,
+            y: y * distRatio,
+            z: z * distRatio
           };
           Graph.cameraPosition(newPos, node, 2000);
+          showNodeDetails(node);
+        })
+        .onBackgroundClick(() => {
+          closeNodeDetails();
         })
         .onEngineStop(() => {
             console.log("Force engine stopped. Capturing natural positions.");
@@ -1377,6 +1767,34 @@
       toggle.classList.toggle('active', isBreathing);
     });
 
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const isLight = document.body.classList.toggle('light-mode');
+      const toggleBtn = document.getElementById('theme-toggle');
+      toggleBtn.setAttribute('title', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+      toggleBtn.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+      // Persist choice
+      localStorage.setItem('sao-theme', isLight ? 'light' : 'dark');
+      if (Graph) {
+          Graph.linkColor(getLinkColor);
+      }
+    });
+
+    // Listen for OS-level changes (only if no stored preference)
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+      if (!localStorage.getItem('sao-theme')) {
+        const shouldBeLight = !e.matches;
+        document.body.classList.toggle('light-mode', shouldBeLight);
+        const toggleBtn = document.getElementById('theme-toggle');
+        if (toggleBtn) {
+          toggleBtn.setAttribute('title', shouldBeLight ? 'Switch to dark mode' : 'Switch to light mode');
+          toggleBtn.setAttribute('aria-label', shouldBeLight ? 'Switch to dark mode' : 'Switch to light mode');
+        }
+        if (Graph) Graph.linkColor(getLinkColor);
+      }
+    });
+
+    document.getElementById('panel-close-btn').addEventListener('click', closeNodeDetails);
+
     document.getElementById('copy-btn').addEventListener('click', async () => {
       const text = '[\n' + adjacencyMatrix.map(row => '  [' + row.join(', ') + ']').join(',\n') + '\n]';
       try {
@@ -1424,6 +1842,7 @@
         node.neighbors.forEach(n => highlightNodes.add(n));
         node.links.forEach(l => highlightLinks.add(l));
         hoverNode = node;
+        showNodeDetails(node);
     }
 
     function panToNode(node) {
@@ -1440,6 +1859,7 @@
         highlightNodes.clear();
         highlightLinks.clear();
         hoverNode = null;
+        showNodeDetails(node);
     }
 
     document.querySelectorAll('.search-box').forEach(searchBox => {
@@ -1561,6 +1981,201 @@
         }
     });
 
+    // Slug mapping for artist pages
+    function getArtistPage(authorName) {
+        const slugMap = {
+            "Sara Arango-Franco": "sara-arango-franco.html",
+            "Sara Arango Franco": "sara-arango-franco.html",
+            "Gabriel Camacho Cabrera": "gabriel-camacho-cabrera.html",
+            "Kyle Thompson": "kyle-thompson.html",
+            "Nadine Abd El Razek": "nadine-abd-el-razek.html",
+            "Nadine AbdElRazek": "nadine-abd-el-razek.html",
+            "Sonal Raghuvanshi": "sonal-raghuvanshi.html",
+            "Lina J Bulla Casas": "lina-j-bulla-casas.html",
+            "Lina Bulla": "lina-j-bulla-casas.html",
+            "Phileas Dazeley-Gaist": "phileas-dazeley-gaist-2.html",
+            "Ellynne Dec": "ellynne-dec-2.html",
+            "Louison Halgand": "louison-halgand.html",
+            "Emerson Paquette": "emerson-paquette.html"
+        };
+        return slugMap[authorName] || "index.html";
+    }
+
+    // Node details presentation logic
+    function showNodeDetails(node) {
+        if (!node) {
+            closeNodeDetails();
+            return;
+        }
+        selectedNode = node;
+        
+        // Highlight selection neighborhood
+        highlightNodes.clear();
+        highlightLinks.clear();
+        highlightNodes.add(selectedNode);
+        selectedNode.neighbors.forEach(n => highlightNodes.add(n));
+        selectedNode.links.forEach(l => highlightLinks.add(l));
+        
+        const panel = document.getElementById('node-details-panel');
+        const content = document.getElementById('panel-content');
+        
+        const parents = [];
+        const children = [];
+        
+        allLinks.forEach(link => {
+            const srcId = link.source.id ?? link.source;
+            const tgtId = link.target.id ?? link.target;
+            
+            if (srcId === node.id) {
+                const parentNode = typeof link.target === 'object' ? link.target : allNodes.find(n => n.id === tgtId);
+                if (parentNode) parents.push(parentNode);
+            }
+            if (tgtId === node.id) {
+                const childNode = typeof link.source === 'object' ? link.source : allNodes.find(n => n.id === srcId);
+                if (childNode) children.push(childNode);
+            }
+        });
+
+        const filename = node.name;
+        const parts = filename.split('-');
+        const cycleText = node.cycle === 0 ? 'Seed' : `Cycle ${node.cycle}`;
+        
+        let title = 'Untitled';
+        if (parts.length > 2) {
+            title = parts.slice(2).join('-').replace(/_/g, ' ').replace(/-/g, ' ');
+            if (!isNaN(title) && title.trim() !== '') {
+                title = `Piece ${title}`;
+            }
+        } else if (parts.length === 2) {
+            title = parts[1].replace(/_/g, ' ').replace(/-/g, ' ');
+        }
+
+        const renderList = (nodeList) => {
+            if (nodeList.length === 0) return `<div class="panel-list-empty">None</div>`;
+            return nodeList.map(n => {
+                const nFilename = n.name;
+                const nParts = nFilename.split('-');
+                let nTitle = 'Untitled';
+                if (nParts.length > 2) {
+                    nTitle = nParts.slice(2).join('-').replace(/_/g, ' ').replace(/-/g, ' ');
+                    if (!isNaN(nTitle) && nTitle.trim() !== '') nTitle = `Piece ${nTitle}`;
+                } else if (nParts.length === 2) {
+                    nTitle = nParts[1].replace(/_/g, ' ').replace(/-/g, ' ');
+                }
+                return `
+                    <li class="panel-list-item" onclick="focusOnNodeById(${n.id})">
+                        <img class="panel-list-img" src="./art-thumbnails/${n.img}" onerror="this.src='./art-imgs/${n.img}'; this.onerror=null;">
+                        <div class="panel-list-info">
+                            <span class="panel-list-title">${nTitle}</span>
+                            <span class="panel-list-author">by ${n.author}</span>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+        };
+
+        const artistPage = getArtistPage(node.author);
+        const rawFilename = node.img.substring(0, node.img.lastIndexOf('.'));
+        const artistLink = `../sympoietic/${artistPage}#img-${rawFilename}`;
+
+        content.innerHTML = `
+            <img class="panel-header-img" src="./art-imgs/${node.img}" onerror="this.src='./art-thumbnails/${node.img}'; this.onerror=null;">
+            <div>
+                <h2 class="panel-title">${title}</h2>
+                <p class="panel-author">by ${node.author}</p>
+            </div>
+            
+            <div class="panel-meta-row">
+                <div>
+                    <span class="panel-meta-label">Timeline:</span>
+                    <span class="panel-meta-value">${cycleText}</span>
+                </div>
+                <div>
+                    <span class="panel-meta-label">Author:</span>
+                    <span class="panel-meta-value">${node.author}</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <a href="${artistLink}" class="panel-btn" style="flex: 1; text-align: center;">View in Gallery</a>
+            </div>
+
+            <div class="panel-section-title">Cited Works (Parents: ${parents.length})</div>
+            <ul class="panel-list">${renderList(parents)}</ul>
+
+            <div class="panel-section-title">Citing Works (Children: ${children.length})</div>
+            <ul class="panel-list">${renderList(children)}</ul>
+        `;
+        
+        panel.classList.add('open');
+    }
+
+    function closeNodeDetails() {
+        selectedNode = null;
+        isLocalFilterActive = false;
+        highlightNodes.clear();
+        highlightLinks.clear();
+        document.getElementById('node-details-panel').classList.remove('open');
+        updateGraphData();
+    }
+
+    // Expose helpers globally for inline HTML events
+    window.focusOnNodeById = function(id) {
+        const node = allNodes.find(n => n.id === id);
+        if (node) {
+            const distance = 60;
+            const x = node.x || 0;
+            const y = node.y || 0;
+            const z = node.z || 0;
+            const hyp = Math.hypot(x, y, z) || 1e-6;
+            const distRatio = 1 + distance / hyp;
+            const newPos = {
+                x: x * distRatio,
+                y: y * distRatio,
+                z: z * distRatio
+            };
+            Graph.cameraPosition(newPos, node, 2000);
+            showNodeDetails(node);
+        }
+    };
+
+    window.toggleLocalFilter = function() {
+        isLocalFilterActive = !isLocalFilterActive;
+        
+        const btn = document.querySelector('#panel-content .panel-btn');
+        if (btn) {
+            btn.textContent = isLocalFilterActive ? 'Show Full Network' : 'Isolate Local Network';
+        }
+        
+        if (isLocalFilterActive && selectedNode) {
+            const localNodeIds = new Set();
+            localNodeIds.add(selectedNode.id);
+            
+            allLinks.forEach(link => {
+                const srcId = link.source.id ?? link.source;
+                const tgtId = link.target.id ?? link.target;
+                
+                if (srcId === selectedNode.id) {
+                    localNodeIds.add(tgtId);
+                }
+                if (tgtId === selectedNode.id) {
+                    localNodeIds.add(srcId);
+                }
+            });
+            
+            // Adjust graph visibility filters to only local network
+            Graph.nodeVisibility(node => localNodeIds.has(node.id));
+            Graph.linkVisibility(link => {
+                const sourceId = link.source.id ?? link.source;
+                const targetId = link.target.id ?? link.target;
+                return (sourceId === selectedNode.id || targetId === selectedNode.id) && localNodeIds.has(sourceId) && localNodeIds.has(targetId);
+            });
+        } else {
+            // Restore visibility based on sliders
+            updateGraphData();
+        }
+    };
+
     // Initialize App
     async function main() {
         const menu = document.getElementById('menu');
@@ -1591,6 +2206,62 @@
             initGraph();
             setupTimelineControls(graphData.uniqueCycles, graphData.maxCycle);
             startRenderLoop();
+            
+            // Check query param for node selection or community highlighting
+            const urlParams = new URLSearchParams(window.location.search);
+            const nodeParam = urlParams.get('node');
+            const viewParam = urlParams.get('view');
+            const highlightParam = urlParams.get('highlight');
+
+            if (viewParam) {
+                const select = document.getElementById('community-select');
+                if (select) {
+                    select.value = viewParam;
+                    currentCommunityView = viewParam;
+                    updateCommunityView();
+                }
+            }
+
+            if (nodeParam) {
+                setTimeout(() => {
+                    let targetNode = allNodes.find(n => n.id === parseInt(nodeParam, 10));
+                    if (!targetNode) {
+                        const normalizedParam = nodeParam.replace(/_/g, ' ').toLowerCase().trim();
+                        // 1. Try to find match by name/filename
+                        targetNode = allNodes.find(n => {
+                            const normalizedName = n.name.toLowerCase();
+                            return normalizedName === normalizedParam || normalizedName.includes(normalizedParam);
+                        });
+                        // 2. Try to find match by author
+                        if (!targetNode) {
+                            targetNode = allNodes.find(n => {
+                                const normalizedAuthor = n.author.toLowerCase();
+                                return normalizedAuthor === normalizedParam || normalizedAuthor.includes(normalizedParam);
+                            });
+                        }
+                    }
+                    if (targetNode) {
+                        focusOnNodeById(targetNode.id);
+                    }
+                }, 1000);
+            }
+
+            if (highlightParam) {
+                setTimeout(() => {
+                    const normalizedParam = highlightParam.replace(/_/g, ' ').toLowerCase().trim();
+                    const words = normalizedParam.split(' ');
+
+                    // Programmatically select the matching legend category
+                    const legendItems = Array.from(document.querySelectorAll('.legend-item'));
+                    const targetItem = legendItems.find(item => {
+                        const nameLower = item.dataset.name.toLowerCase();
+                        return words.every(word => nameLower.includes(word));
+                    });
+                    if (targetItem) {
+                        targetItem.click();
+                    }
+                }, 1100);
+            }
         }
     }
 
