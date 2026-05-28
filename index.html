@@ -829,6 +829,23 @@
       color: var(--text-primary);
     }
 
+    .panel-header-img-link {
+      display: block;
+      width: 100%;
+      cursor: pointer;
+      border-radius: 0px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .panel-header-img-link:hover {
+      transform: scale(0.99);
+      box-shadow: 0 4px 12px rgba(23, 191, 163, 0.25);
+    }
+    .panel-header-img-link:hover .panel-header-img {
+      border-color: var(--accent);
+    }
+
     .panel-header-img {
       width: 100%;
       height: auto;
@@ -836,6 +853,13 @@
       border-radius: 0px;
       background: var(--surface-2);
       border: 1px solid var(--border-color);
+      transition: border-color 0.2s ease;
+    }
+
+    @media (min-width: 768px) {
+      .view-in-gallery-btn {
+        display: none !important;
+      }
     }
 
     .panel-title {
@@ -2079,7 +2103,9 @@
         const artistLink = `../sympoietic/${artistPage}#img-${rawFilename}`;
 
         content.innerHTML = `
-            <img class="panel-header-img" src="./art-imgs/${node.img}" onerror="this.src='./art-thumbnails/${node.img}'; this.onerror=null;">
+            <a href="${artistLink}" class="panel-header-img-link" title="Click to view in digital gallery">
+                <img class="panel-header-img" src="./art-imgs/${node.img}" onerror="this.src='./art-thumbnails/${node.img}'; this.onerror=null;">
+            </a>
             <div>
                 <h2 class="panel-title">${title}</h2>
                 <p class="panel-author">by ${node.author}</p>
@@ -2097,7 +2123,7 @@
             </div>
 
             <div style="display: flex; gap: 8px;">
-                <a href="${artistLink}" class="panel-btn" style="flex: 1; text-align: center;">View in Gallery</a>
+                <a href="${artistLink}" class="panel-btn view-in-gallery-btn" style="flex: 1; text-align: center;">View in Gallery</a>
             </div>
 
             <div class="panel-section-title">Cited Works (Parents: ${parents.length})</div>
