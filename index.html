@@ -685,10 +685,15 @@
     }
 
     /* Focus states for keyboard navigation */
-    button:focus,
-    nav ul li a:focus {
+    button:focus-visible,
+    nav ul li a:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
+    }
+    button:focus:not(:focus-visible),
+    nav ul li a:focus:not(:focus-visible) {
+      outline: none !important;
+      box-shadow: none !important;
     }
 
     /* Light Mode Overrides */
@@ -814,21 +819,76 @@
       right: 20px;
     }
 
+    /* Global scrollbar styling for all scrollable elements */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+
+    body.light-mode * {
+      scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    body.light-mode ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    body.light-mode ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
     .panel-close-btn {
       position: absolute;
-      top: 15px;
-      right: 20px;
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 1.5rem;
+      top: 30px;
+      right: 36px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      transform: none !important;
+      color: #ffffff !important;
       cursor: pointer;
-      line-height: 1;
-      padding: 0;
+      padding: 0 !important;
+      z-index: 1010;
+      opacity: 0.75;
+      transition: color 0.2s ease, transform 0.2s ease, opacity 0.2s ease !important;
+      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.6));
     }
 
     .panel-close-btn:hover {
-      color: var(--text-primary);
+      color: var(--accent) !important;
+      opacity: 1;
+      transform: scale(1.1) !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .panel-close-btn:focus:not(:focus-visible) {
+      outline: none !important;
+      box-shadow: none !important;
     }
 
     .panel-header-img-link {
@@ -851,6 +911,7 @@
     .panel-header-img {
       width: 100%;
       height: auto;
+      max-height: 280px;
       object-fit: contain;
       border-radius: 0px;
       background: var(--surface-2);
@@ -865,11 +926,11 @@
     }
 
     .panel-title {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      margin: 10px 0 4px 0;
+      margin: 8px 0 4px 0;
       line-height: 1.2;
       color: var(--text-primary);
     }
@@ -877,29 +938,12 @@
     .panel-author {
       font-size: 0.85rem;
       color: var(--accent);
-      margin: 0 0 10px 0;
-      font-weight: 500;
+      margin: 0 0 12px 0;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
     }
 
-    .panel-meta-row {
-      display: flex;
-      justify-content: space-between;
-      border-top: 1px solid var(--border-color);
-      border-bottom: 1px solid var(--border-color);
-      padding: 8px 0;
-      margin: 8px 0;
-      font-size: 0.85rem;
-    }
-
-    .panel-meta-label {
-      color: var(--text-secondary);
-    }
-
-    .panel-meta-value {
-      font-weight: 500;
-    }
 
     .panel-section-title {
       font-size: 0.9rem;
@@ -907,29 +951,32 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--text-secondary);
-      margin: 12px 0 6px 0;
+      margin: 18px 0 8px 0;
     }
 
     .panel-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 4px;
       margin: 0;
-      padding: 0;
+      padding: 4px 0;
       list-style: none;
-      max-height: 150px;
+      max-height: 160px;
       overflow-y: auto;
-      border: 1px solid var(--border-color);
-      border-radius: 0px;
-      padding: 6px;
-      background: var(--surface-2);
+      border: none;
+      background: rgba(255, 255, 255, 0.02);
+      transition: background 0.3s ease;
+    }
+
+    body.light-mode .panel-list {
+      background: rgba(0, 0, 0, 0.02);
     }
 
     .panel-list-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 6px;
+      gap: 12px;
+      padding: 8px 12px;
       border-radius: 0px;
       cursor: pointer;
       transition: background 0.2s ease;
@@ -974,11 +1021,12 @@
     }
 
     .panel-list-empty {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--text-secondary);
       font-style: italic;
-      padding: 8px;
+      padding: 12px;
       text-align: center;
+      list-style: none;
     }
 
     .panel-btn {
@@ -1094,7 +1142,12 @@
   
   <!-- Node Details Panel -->
   <div id="node-details-panel">
-    <button class="panel-close-btn" id="panel-close-btn">&times;</button>
+    <button class="panel-close-btn" id="panel-close-btn" aria-label="Close details">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
     <div id="panel-content"></div>
   </div>
 
@@ -2077,7 +2130,7 @@
         }
 
         const renderList = (nodeList) => {
-            if (nodeList.length === 0) return `<div class="panel-list-empty">None</div>`;
+            if (nodeList.length === 0) return `<li class="panel-list-empty">None</li>`;
             return nodeList.map(n => {
                 const nFilename = n.name;
                 const nParts = nFilename.split('-');
@@ -2110,18 +2163,7 @@
             </a>
             <div>
                 <h2 class="panel-title">${title}</h2>
-                <p class="panel-author">by ${node.author}</p>
-            </div>
-            
-            <div class="panel-meta-row">
-                <div>
-                    <span class="panel-meta-label">Timeline:</span>
-                    <span class="panel-meta-value">${cycleText}</span>
-                </div>
-                <div>
-                    <span class="panel-meta-label">Author:</span>
-                    <span class="panel-meta-value">${node.author}</span>
-                </div>
+                <p class="panel-author">by ${node.author} &bull; ${cycleText}</p>
             </div>
 
             <div style="display: flex; gap: 8px;">
