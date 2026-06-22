@@ -1065,6 +1065,24 @@
       }
     })();
   </script>
+  
+  <!-- Presentation Embed UI Hiding Overrides -->
+  <script>
+    if (window.self !== window.top) {
+      document.documentElement.classList.add('embed-mode');
+    }
+  </script>
+  <style>
+    .embed-mode #menu,
+    .embed-mode #cycle-section,
+    .embed-mode .desktop-search,
+    .embed-mode #legend,
+    .embed-mode #theme-toggle,
+    .embed-mode #breathing-toggle,
+    .embed-mode #node-details-panel {
+      display: none !important;
+    }
+  </style>
 </head>
 
 <body>
